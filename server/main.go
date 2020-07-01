@@ -39,11 +39,8 @@ func handleScreenResizeEvents(responseWriter http.ResponseWriter, request *http.
 
 	if dataStored, ok := dbUserData[screenResizeObject.SessionId]; ok {
 
-		dataStored.ResizeFrom.Height = screenResizeObject.ResizeFrom.Height
-		dataStored.ResizeFrom.Width = screenResizeObject.ResizeFrom.Width
-
-		dataStored.ResizeTo.Height = screenResizeObject.ResizeTo.Height
-		dataStored.ResizeTo.Width = screenResizeObject.ResizeTo.Width
+		dataStored.ResizeFrom = screenResizeObject.ResizeFrom
+		dataStored.ResizeTo = screenResizeObject.ResizeTo
 
 	} else {
 
@@ -53,14 +50,9 @@ func handleScreenResizeEvents(responseWriter http.ResponseWriter, request *http.
 		newData := &model.Data{
 			SessionId:  screenResizeObject.SessionId,
 			WebsiteUrl: screenResizeObject.WebsiteUrl,
-			ResizeTo: model.Dimension{
-				Height: screenResizeObject.ResizeTo.Height,
-				Width:  screenResizeObject.ResizeTo.Width,
-			},
-			ResizeFrom: model.Dimension{
-				Height: screenResizeObject.ResizeFrom.Height,
-				Width:  screenResizeObject.ResizeFrom.Width,
-			},
+
+			ResizeTo:   screenResizeObject.ResizeTo,
+			ResizeFrom: screenResizeObject.ResizeFrom,
 		}
 
 		dbUserData[screenResizeObject.SessionId] = newData
