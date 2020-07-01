@@ -77,6 +77,26 @@ func handleTimeTakenEvents(responseWriter http.ResponseWriter, request *http.Req
 		return
 	}
 
+	// session will need to be thread safe
+
+	if dataStored, ok := dbUserData[timeTakenObject.SessionId]; ok {
+
+		dataStored.FormCompletionTime = timeTakenObject.FormCompletionTime
+
+	} else {
+
+		// auxiliar method to validate webSiteUrl
+
+		// should session Id be generated here? It would definetly enable backend to have more control regarding expiration for example
+		newData := &model.Data{
+			SessionId:          timeTakenObject.SessionId,
+			WebsiteUrl:         timeTakenObject.WebsiteUrl,
+			FormCompletionTime: timeTakenObject.FormCompletionTime,
+		}
+
+		dbUserData[timeTakenObject.SessionId] = newData
+	}
+
 	fmt.Printf("%+v", timeTakenObject)
 }
 
@@ -94,6 +114,27 @@ func handleCopyPasteEvents(responseWriter http.ResponseWriter, request *http.Req
 	if err = json.Unmarshal(body, copyPasteObject); err != nil {
 		log.Println("Unable to unMarshall request body, returned the following error", err)
 		return
+	}
+
+	// session will need to be thread safe
+
+	if dataStored, ok := dbUserData[copyPasteObject.SessionId]; ok {
+
+		dataStored.CopyAndPaste = copyPasteObject.CopyAndPaste
+
+	} else {
+
+		// auxiliar method to validate webSiteUrl
+
+		// should session Id be generated here? It would definetly enable backend to have more control regarding expiration for example
+		newData := &model.Data{
+			SessionId:  copyPasteObject.SessionId,
+			WebsiteUrl: copyPasteObject.WebsiteUrl,
+
+			CopyAndPaste: copyPasteObject.CopyAndPaste,
+		}
+
+		dbUserData[copyPasteObject.SessionId] = newData
 	}
 
 	fmt.Printf("%+v", copyPasteObject)
