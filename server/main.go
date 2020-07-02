@@ -2,6 +2,7 @@ package main
 
 import (
 	"code-test/server/model"
+	"code-test/server/repository"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -28,37 +29,30 @@ func handleScreenResizeEvents(responseWriter http.ResponseWriter, request *http.
 		return
 	}
 
-	screenResizeObject := &model.ScreenResizeEvent{}
+	screenResizeReceived := &model.ScreenResizeEvent{}
 
-	if err = json.Unmarshal(body, screenResizeObject); err != nil {
+	if err = json.Unmarshal(body, screenResizeReceived); err != nil {
 		log.Println("Unable to unMarshall request body, returned the following error", err)
 		return
 	}
 
-	// session will need to be thread safe
+	dataToStore := &model.Data{
+		WebsiteUrl: screenResizeReceived.WebsiteUrl,
+		SessionId:  screenResizeReceived.SessionId,
 
-	if dataStored, ok := dbUserData[screenResizeObject.SessionId]; ok {
-
-		dataStored.ResizeFrom = screenResizeObject.ResizeFrom
-		dataStored.ResizeTo = screenResizeObject.ResizeTo
-
-	} else {
-
-		// auxiliar method to validate webSiteUrl
-
-		// should session Id be generated here? It would definetly enable backend to have more control regarding expiration for example
-		newData := &model.Data{
-			SessionId:  screenResizeObject.SessionId,
-			WebsiteUrl: screenResizeObject.WebsiteUrl,
-
-			ResizeTo:   screenResizeObject.ResizeTo,
-			ResizeFrom: screenResizeObject.ResizeFrom,
-		}
-
-		dbUserData[screenResizeObject.SessionId] = newData
+		ResizeFrom: screenResizeReceived.ResizeFrom,
+		ResizeTo:   screenResizeReceived.ResizeTo,
 	}
 
-	fmt.Printf("%+v", screenResizeObject)
+	// validate method POST
+
+	// validate event type -> declare consts with event types expected and check if event type is any of the expected
+
+	// auxiliar method to validate webSiteUrl (regex ? )
+
+	updatedData, err := repository.SessionsData.Update(dataToStore)
+
+	fmt.Printf("Session Data after screenSize update %+v", updatedData)
 }
 
 func handleTimeTakenEvents(responseWriter http.ResponseWriter, request *http.Request) {
@@ -70,34 +64,29 @@ func handleTimeTakenEvents(responseWriter http.ResponseWriter, request *http.Req
 		return
 	}
 
-	timeTakenObject := &model.TimeTakenEvent{}
+	timeTakenReceived := &model.TimeTakenEvent{}
 
-	if err = json.Unmarshal(body, timeTakenObject); err != nil {
+	if err = json.Unmarshal(body, timeTakenReceived); err != nil {
 		log.Println("Unable to unMarshall request body, returned the following error", err)
 		return
 	}
 
-	// session will need to be thread safe
+	dataToStore := &model.Data{
+		WebsiteUrl: timeTakenReceived.WebsiteUrl,
+		SessionId:  timeTakenReceived.SessionId,
 
-	if dataStored, ok := dbUserData[timeTakenObject.SessionId]; ok {
-
-		dataStored.FormCompletionTime = timeTakenObject.FormCompletionTime
-
-	} else {
-
-		// auxiliar method to validate webSiteUrl
-
-		// should session Id be generated here? It would definetly enable backend to have more control regarding expiration for example
-		newData := &model.Data{
-			SessionId:          timeTakenObject.SessionId,
-			WebsiteUrl:         timeTakenObject.WebsiteUrl,
-			FormCompletionTime: timeTakenObject.FormCompletionTime,
-		}
-
-		dbUserData[timeTakenObject.SessionId] = newData
+		FormCompletionTime: timeTakenReceived.FormCompletionTime,
 	}
 
-	fmt.Printf("%+v", timeTakenObject)
+	// validate method POST
+
+	// validate event type -> declare consts with event types expected and check if event type is any of the expected
+
+	// auxiliar method to validate webSiteUrl (regex ? )
+
+	updatedData, err := repository.SessionsData.Update(dataToStore)
+
+	fmt.Printf("Session Data after time taken event update %+v", updatedData)
 }
 
 func handleCopyPasteEvents(responseWriter http.ResponseWriter, request *http.Request) {
@@ -109,37 +98,62 @@ func handleCopyPasteEvents(responseWriter http.ResponseWriter, request *http.Req
 		return
 	}
 
-	copyPasteObject := &model.CopyPasteEvent{}
+	copyPasteReceived := &model.CopyPasteEvent{}
 
-	if err = json.Unmarshal(body, copyPasteObject); err != nil {
+	if err = json.Unmarshal(body, copyPasteReceived); err != nil {
 		log.Println("Unable to unMarshall request body, returned the following error", err)
 		return
 	}
 
-	// session will need to be thread safe
+	dataToStore := &model.Data{
+		WebsiteUrl: copyPasteReceived.WebsiteUrl,
+		SessionId:  copyPasteReceived.SessionId,
 
-	if dataStored, ok := dbUserData[copyPasteObject.SessionId]; ok {
-
-		dataStored.CopyAndPaste = copyPasteObject.CopyAndPaste
-
-	} else {
-
-		// auxiliar method to validate webSiteUrl
-
-		// should session Id be generated here? It would definetly enable backend to have more control regarding expiration for example
-		newData := &model.Data{
-			SessionId:  copyPasteObject.SessionId,
-			WebsiteUrl: copyPasteObject.WebsiteUrl,
-
-			CopyAndPaste: copyPasteObject.CopyAndPaste,
-		}
-
-		dbUserData[copyPasteObject.SessionId] = newData
+		CopyAndPaste: map[string]bool{
+			copyPasteReceived.FormId: copyPasteReceived.Pasted,
+		},
 	}
 
-	fmt.Printf("%+v", copyPasteObject)
+	// validate method POST
+
+	// validate event type -> declare consts with event types expected and check if event type is any of the expected
+
+	// auxiliar method to validate webSiteUrl (regex ? )
+
+	updatedData, err := repository.SessionsData.Update(dataToStore)
+
+	fmt.Printf("Session Data after copy paste update %+v", updatedData)
 }
 
 func handleSessionCreation(responseWriter http.ResponseWriter, request *http.Request) {
+
+	body, err := ioutil.ReadAll(request.Body)
+
+	if err != nil {
+		log.Println("Unable to read body, returned the following error", err)
+		return
+	}
+
+	sessionReceived := &model.SessionEvent{}
+
+	if err = json.Unmarshal(body, sessionReceived); err != nil {
+		log.Println("Unable to unMarshall request body, returned the following error", err)
+		return
+	}
+
+	// validate method POST
+
+	// auxiliar method to validate webSiteUrl
+
+	// generate session Id
+	sessionId := "generated session id" //TODO
+
+	// return to client
+
+	//TODO
+
+	// store in Db
+
+	repository.InitUserSession(sessionId, sessionReceived.WebsiteUrl)
 
 }

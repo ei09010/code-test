@@ -17,9 +17,10 @@ type ScreenResizeEvent struct {
 }
 
 type CopyPasteEvent struct {
-	WebsiteUrl   string
-	SessionId    string
-	CopyAndPaste map[string]bool // map[fieldId]true
+	WebsiteUrl string
+	SessionId  string
+	Pasted     bool // map[fieldId]true
+	FormId     string
 }
 
 type TimeTakenEvent struct {
@@ -40,4 +41,8 @@ type CompleteData struct {
 type Dimension struct {
 	Width  string
 	Height string
+}
+
+type SessionEvent struct {
+	WebsiteUrl string
 }
