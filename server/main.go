@@ -3,6 +3,7 @@ package main
 import (
 	"code-test/server/model"
 	"code-test/server/repository"
+	"code-test/server/services/event_service"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -10,7 +11,14 @@ import (
 	"net/http"
 )
 
-var dbUserData = make(map[string]*model.Data)
+const (
+	invalidMethodReceived = "Received http method is not the expected one"
+	unableToReadBody      = "Unable to read body"
+	unableToUnmarshall    = "Unable to unMarshall request body"
+	errorUpdatingData     = "Error updating data in the repository"
+	invalidObject         = "The received object is invalid"
+	errorValidatingObject = "Error validating object"
+)
 
 func main() {
 	http.HandleFunc("/screenresize", handleScreenResizeEvents)
@@ -22,37 +30,60 @@ func main() {
 
 func handleScreenResizeEvents(responseWriter http.ResponseWriter, request *http.Request) {
 
+	// validate request method and body
+	if request.Method != http.MethodPost {
+
+		log.Println(invalidMethodReceived)
+		http.Error(responseWriter, invalidMethodReceived, http.StatusMethodNotAllowed)
+		return
+	}
+
 	body, err := ioutil.ReadAll(request.Body)
 
 	if err != nil {
-		log.Println("Unable to read body, returned the following error", err)
+
+		log.Println(unableToReadBody, "with error", err)
+		http.Error(responseWriter, unableToReadBody, http.StatusBadRequest)
 		return
 	}
 
-	screenResizeReceived := &model.ScreenResizeEvent{}
+	screenResizeReceived := &event_service.ScreenResizeEvent{}
 
 	if err = json.Unmarshal(body, screenResizeReceived); err != nil {
-		log.Println("Unable to unMarshall request body, returned the following error", err)
+
+		log.Println(unableToUnmarshall, "with error", err)
+		http.Error(responseWriter, unableToUnmarshall, http.StatusBadRequest)
 		return
 	}
 
-	dataToStore := &model.Data{
-		WebsiteUrl: screenResizeReceived.WebsiteUrl,
-		SessionId:  screenResizeReceived.SessionId,
+	// validate payload content
+	isValid, err := screenResizeReceived.Validate()
 
-		ResizeFrom: screenResizeReceived.ResizeFrom,
-		ResizeTo:   screenResizeReceived.ResizeTo,
+	if err != nil {
+		log.Println(errorValidatingObject, "with error", err)
+		http.Error(responseWriter, errorValidatingObject, http.StatusInternalServerError)
+		return
 	}
 
-	// validate method POST
+	if !isValid {
+		log.Println(invalidObject, "with error", err)
+		http.Error(responseWriter, invalidObject, http.StatusBadRequest)
+		return
+	}
 
-	// validate event type -> declare consts with event types expected and check if event type is any of the expected
-
-	// auxiliar method to validate webSiteUrl (regex ? )
+	// process payload content
+	dataToStore := screenResizeReceived.Map()
 
 	updatedData, err := repository.SessionsData.Update(dataToStore)
 
-	fmt.Printf("Session Data after screenSize update %+v", updatedData)
+	if err != nil {
+
+		log.Println(errorUpdatingData, "with error", err)
+		http.Error(responseWriter, errorUpdatingData, http.StatusInternalServerError)
+		return
+	}
+
+	fmt.Printf("Session Data after screenSize update:\n %+v", updatedData)
 }
 
 func handleTimeTakenEvents(responseWriter http.ResponseWriter, request *http.Request) {
@@ -64,7 +95,7 @@ func handleTimeTakenEvents(responseWriter http.ResponseWriter, request *http.Req
 		return
 	}
 
-	timeTakenReceived := &model.TimeTakenEvent{}
+	timeTakenReceived := &event_service.TimeTakenEvent{}
 
 	if err = json.Unmarshal(body, timeTakenReceived); err != nil {
 		log.Println("Unable to unMarshall request body, returned the following error", err)
@@ -98,7 +129,7 @@ func handleCopyPasteEvents(responseWriter http.ResponseWriter, request *http.Req
 		return
 	}
 
-	copyPasteReceived := &model.CopyPasteEvent{}
+	copyPasteReceived := &event_service.CopyPasteEvent{}
 
 	if err = json.Unmarshal(body, copyPasteReceived); err != nil {
 		log.Println("Unable to unMarshall request body, returned the following error", err)
@@ -134,7 +165,7 @@ func handleSessionCreation(responseWriter http.ResponseWriter, request *http.Req
 		return
 	}
 
-	sessionReceived := &model.SessionEvent{}
+	sessionReceived := &event_service.SessionEvent{}
 
 	if err = json.Unmarshal(body, sessionReceived); err != nil {
 		log.Println("Unable to unMarshall request body, returned the following error", err)

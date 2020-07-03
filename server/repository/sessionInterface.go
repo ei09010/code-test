@@ -7,7 +7,7 @@ package repository
 //   3 - Interface declaration would also enable me to use dependency injection
 
 type Session interface {
-	Save(receivedSessionData interface{}) error     //set session data object
-	Get(sessionId interface{}) (interface{}, error) // get session data object
-	Update(receivedSessionData interface{}) error   // Update session data object
+	Save(receivedSessionData interface{}) error                             //set session data object
+	Get(sessionId interface{}, websiteUrl interface{}) (interface{}, error) // get session data object
+	Update(receivedSessionData interface{}) error                           // Update session data object
 }

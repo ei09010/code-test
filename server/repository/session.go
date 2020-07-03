@@ -40,17 +40,21 @@ func (evStore *eventStorage) Save(receivedSessionData *model.Data) error {
 	evStore.mu.Lock()
 	defer evStore.mu.Unlock()
 
-	evStore.sessionData[receivedSessionData.SessionId] = receivedSessionData
+	mapKey := buildKey(receivedSessionData.SessionId, receivedSessionData.WebsiteUrl)
+
+	evStore.sessionData[mapKey] = receivedSessionData
 
 	return nil
 }
 
-func (evStore *eventStorage) Get(sessionId string) (*model.Data, error) {
+func (evStore *eventStorage) Get(sessionId string, websiteUrl string) (*model.Data, error) {
 
 	evStore.mu.Lock()
 	defer evStore.mu.Unlock()
 
-	dataToReturn := evStore.sessionData[sessionId]
+	mapKey := buildKey(sessionId, websiteUrl)
+
+	dataToReturn := evStore.sessionData[mapKey]
 
 	return dataToReturn, nil
 
@@ -66,8 +70,10 @@ func (evStore *eventStorage) Update(receivedSessionData *model.Data) (*model.Dat
 		return nil, errors.New("Received nil Data object")
 	}
 
+	mapKey := buildKey(receivedSessionData.SessionId, receivedSessionData.WebsiteUrl)
+
 	// store screensize events
-	if dataStored, ok := evStore.sessionData[receivedSessionData.SessionId]; ok {
+	if dataStored, ok := evStore.sessionData[mapKey]; ok {
 
 		// Since only one re-size happens, I'm assuming that if already stored resize data is empty, we can override with valid (non zero-value) received resize data
 
@@ -103,9 +109,13 @@ func (evStore *eventStorage) Update(receivedSessionData *model.Data) (*model.Dat
 
 	} else {
 
-		evStore.sessionData[receivedSessionData.SessionId] = receivedSessionData
+		evStore.sessionData[mapKey] = receivedSessionData
 	}
 
-	return evStore.sessionData[receivedSessionData.SessionId], nil
+	return evStore.sessionData[mapKey], nil
 
+}
+
+func buildKey(sessionId string, websiteUrl string) string {
+	return sessionId + "|" + websiteUrl
 }
