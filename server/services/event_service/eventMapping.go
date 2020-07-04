@@ -4,7 +4,7 @@ import (
 	"code-test/server/model"
 )
 
-// this mapping functions isolate the datamode object construction to a single file, if the data model changes, the mapping related changes will happen in the same place
+// this mapping functions isolate the datamodel object construction to a single file - if the data model changes, the mapping related changes will happen in the same place
 
 func (scrEvent *ScreenResizeEvent) Map() *model.Data {
 

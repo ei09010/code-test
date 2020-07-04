@@ -7,20 +7,20 @@ import (
 	"sync"
 )
 
-type eventStorage struct {
+type sessionDatatStorage struct {
 	sessionData map[string]*model.Data
 	mu          sync.Mutex
 }
 
-var SessionsData eventStorage
+var SessionsData sessionDatatStorage
 
 func Init() {
-	SessionsData = eventStorage{
+	SessionsData = sessionDatatStorage{
 		sessionData: make(map[string]*model.Data),
 	}
 }
 
-func (evStore *eventStorage) InitUserSession(sessionId string, websiteUrl string) (*model.Data, error) {
+func (sDataStore *sessionDatatStorage) InitUserSession(sessionId string, websiteUrl string) (*model.Data, error) {
 
 	dataToReturn := &model.Data{
 		SessionId:    sessionId,
@@ -38,36 +38,36 @@ func (evStore *eventStorage) InitUserSession(sessionId string, websiteUrl string
 	return dataToReturn, nil
 }
 
-func (evStore *eventStorage) Save(receivedSessionData *model.Data) error {
+func (sDataStore *sessionDatatStorage) Save(receivedSessionData *model.Data) error {
 
-	evStore.mu.Lock()
-	defer evStore.mu.Unlock()
+	sDataStore.mu.Lock()
+	defer sDataStore.mu.Unlock()
 
 	mapKey := buildKey(receivedSessionData.SessionId, receivedSessionData.WebsiteUrl)
 
-	evStore.sessionData[mapKey] = receivedSessionData
+	sDataStore.sessionData[mapKey] = receivedSessionData
 
 	return nil
 }
 
-func (evStore *eventStorage) Get(sessionId string, websiteUrl string) (*model.Data, error) {
+func (sDataStore *sessionDatatStorage) Get(sessionId string, websiteUrl string) (*model.Data, error) {
 
-	evStore.mu.Lock()
-	defer evStore.mu.Unlock()
+	sDataStore.mu.Lock()
+	defer sDataStore.mu.Unlock()
 
 	mapKey := buildKey(sessionId, websiteUrl)
 
-	dataToReturn := evStore.sessionData[mapKey]
+	dataToReturn := sDataStore.sessionData[mapKey]
 
 	return dataToReturn, nil
 
 }
 
 // here we store the Data object, that will always have some properties with the zero-value due to the fragmented nature of the handled events
-func (evStore *eventStorage) Update(receivedSessionData *model.Data) (*model.Data, error) {
+func (sDataStore *sessionDatatStorage) Update(receivedSessionData *model.Data) (*model.Data, error) {
 
-	evStore.mu.Lock()
-	defer evStore.mu.Unlock()
+	sDataStore.mu.Lock()
+	defer sDataStore.mu.Unlock()
 
 	if receivedSessionData == nil {
 		return nil, errors.New("Received nil Data object")
@@ -76,23 +76,7 @@ func (evStore *eventStorage) Update(receivedSessionData *model.Data) (*model.Dat
 	mapKey := buildKey(receivedSessionData.SessionId, receivedSessionData.WebsiteUrl)
 
 	// store screensize events
-	if dataStored, ok := evStore.sessionData[mapKey]; ok {
-
-		// Since only one re-size happens, I'm assuming that if already stored resize data is empty, we can override with valid (non zero-value) received resize data
-
-		receivedResizeFromValid := receivedSessionData.ResizeFrom.Height != "" && receivedSessionData.ResizeFrom.Width != ""
-		dataStoredResizeFromInvalid := dataStored.ResizeFrom.Height == "" && dataStored.ResizeFrom.Width == ""
-
-		if receivedResizeFromValid && dataStoredResizeFromInvalid {
-			dataStored.ResizeFrom = receivedSessionData.ResizeFrom
-		}
-
-		receivedResizeToValid := receivedSessionData.ResizeTo.Height != "" && receivedSessionData.ResizeTo.Width != ""
-		dataStoredResizeToInvalid := dataStored.ResizeTo.Height == "" && dataStored.ResizeTo.Width == ""
-
-		if receivedResizeToValid && dataStoredResizeToInvalid {
-			dataStored.ResizeTo = receivedSessionData.ResizeTo
-		}
+	if dataStored, ok := sDataStore.sessionData[mapKey]; ok {
 
 		// store time taken events
 
@@ -110,12 +94,28 @@ func (evStore *eventStorage) Update(receivedSessionData *model.Data) (*model.Dat
 			}
 		}
 
+		// Since only one re-size happens, I'm assuming that if already stored resize data is empty, we can override with valid (non zero-value) received resize data
+
+		receivedResizeFromValid := receivedSessionData.ResizeFrom.Height != "" && receivedSessionData.ResizeFrom.Width != ""
+		dataStoredResizeFromInvalid := dataStored.ResizeFrom.Height == "" && dataStored.ResizeFrom.Width == ""
+
+		if receivedResizeFromValid && dataStoredResizeFromInvalid {
+			dataStored.ResizeFrom = receivedSessionData.ResizeFrom
+		}
+
+		receivedResizeToValid := receivedSessionData.ResizeTo.Height != "" && receivedSessionData.ResizeTo.Width != ""
+		dataStoredResizeToInvalid := dataStored.ResizeTo.Height == "" && dataStored.ResizeTo.Width == ""
+
+		if receivedResizeToValid && dataStoredResizeToInvalid {
+			dataStored.ResizeTo = receivedSessionData.ResizeTo
+		}
+
 	} else {
 
-		evStore.sessionData[mapKey] = receivedSessionData
+		sDataStore.sessionData[mapKey] = receivedSessionData
 	}
 
-	return evStore.sessionData[mapKey], nil
+	return sDataStore.sessionData[mapKey], nil
 
 }
 
