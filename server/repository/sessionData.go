@@ -7,20 +7,12 @@ import (
 	"sync"
 )
 
-type sessionDatatStorage struct {
+type SessionDataStorage struct {
 	sessionData map[string]*model.Data
 	mu          sync.Mutex
 }
 
-var SessionsData sessionDatatStorage
-
-func Init() {
-	SessionsData = sessionDatatStorage{
-		sessionData: make(map[string]*model.Data),
-	}
-}
-
-func (sDataStore *sessionDatatStorage) InitUserSession(sessionId string, websiteUrl string) (*model.Data, error) {
+func (sDataStore *SessionDataStorage) InitUserSession(sessionId string, websiteUrl string) (*model.Data, error) {
 
 	dataToReturn := &model.Data{
 		SessionId:    sessionId,
@@ -28,7 +20,7 @@ func (sDataStore *sessionDatatStorage) InitUserSession(sessionId string, website
 		CopyAndPaste: make(map[string]bool),
 	}
 
-	err := SessionsData.Save(dataToReturn)
+	err := sDataStore.Save(dataToReturn)
 
 	if err != nil {
 		log.Println("Error while saving session data", err)
@@ -38,7 +30,7 @@ func (sDataStore *sessionDatatStorage) InitUserSession(sessionId string, website
 	return dataToReturn, nil
 }
 
-func (sDataStore *sessionDatatStorage) Save(receivedSessionData *model.Data) error {
+func (sDataStore *SessionDataStorage) Save(receivedSessionData *model.Data) error {
 
 	sDataStore.mu.Lock()
 	defer sDataStore.mu.Unlock()
@@ -50,7 +42,7 @@ func (sDataStore *sessionDatatStorage) Save(receivedSessionData *model.Data) err
 	return nil
 }
 
-func (sDataStore *sessionDatatStorage) Get(sessionId string, websiteUrl string) (*model.Data, error) {
+func (sDataStore *SessionDataStorage) Get(sessionId string, websiteUrl string) (*model.Data, error) {
 
 	sDataStore.mu.Lock()
 	defer sDataStore.mu.Unlock()
@@ -64,7 +56,7 @@ func (sDataStore *sessionDatatStorage) Get(sessionId string, websiteUrl string) 
 }
 
 // here we store the Data object, that will always have some properties with the zero-value due to the fragmented nature of the handled events
-func (sDataStore *sessionDatatStorage) Update(receivedSessionData *model.Data) (*model.Data, error) {
+func (sDataStore *SessionDataStorage) Update(receivedSessionData *model.Data) (*model.Data, error) {
 
 	sDataStore.mu.Lock()
 	defer sDataStore.mu.Unlock()
