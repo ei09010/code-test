@@ -65,7 +65,7 @@ func (timeEvent *TimeTakenEvent) Validate() (bool, error) {
 		return false, nil
 	}
 
-	isValid = timeEvent.FormCompletionTime > 0 && timeEvent.FormCompletionTime == 0
+	isValid = timeEvent.FormCompletionTime > 0
 
 	return isValid, nil
 }

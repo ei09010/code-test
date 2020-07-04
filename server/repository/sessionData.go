@@ -72,7 +72,7 @@ func (sDataStore *SessionDataStorage) Update(receivedSessionData *model.Data) (*
 
 		// store time taken events
 
-		if receivedSessionData.FormCompletionTime > 0 && dataStored.FormCompletionTime == 0 {
+		if receivedSessionData.FormCompletionTime > 0 {
 
 			dataStored.FormCompletionTime = receivedSessionData.FormCompletionTime
 		}
