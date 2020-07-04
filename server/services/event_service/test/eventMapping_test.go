@@ -5,12 +5,13 @@ import (
 	"code-test/server/services/event_service"
 	"testing"
 )
-func TestMap_receiveScreenResizeEvent_MapToDataModelWithSuccess(t *testing.T){
-	
+
+func TestMap_receiveScreenResizeEvent_MapToDataModelWithSuccess(t *testing.T) {
+
 	// Arrange
 
 	expectedResult := &model.Data{
-		SessionId: "1235",
+		SessionId:  "1235",
 		WebsiteUrl: "https://ravelin.com",
 		ResizeFrom: model.Dimension{
 			Height: "1",
@@ -40,52 +41,70 @@ func TestMap_receiveScreenResizeEvent_MapToDataModelWithSuccess(t *testing.T){
 
 	res := screenResizeEvent.Map()
 
-
 	// Assert
 
-	if expectedResult != res {
-		t.Errorf("Expected %v, got %v", expectedResult, res)
+	if expectedResult.ResizeFrom != res.ResizeFrom {
+		t.Errorf("Expected %v, got %v", expectedResult.ResizeFrom, res.ResizeFrom)
+	}
+
+	if expectedResult.ResizeTo != res.ResizeFrom {
+		t.Errorf("Expected %v, got %v", expectedResult.ResizeTo, res.ResizeTo)
+	}
+
+	if expectedResult.SessionId != res.SessionId {
+		t.Errorf("Expected %v, got %v", expectedResult.SessionId, res.SessionId)
+	}
+
+	if expectedResult.WebsiteUrl != res.WebsiteUrl {
+		t.Errorf("Expected %v, got %v", expectedResult.WebsiteUrl, res.WebsiteUrl)
 	}
 }
 
-func TestMap_receiveTimeTakenEvent_MapToDataModelWithSuccess(t *testing.T){
-	
+func TestMap_receiveTimeTakenEvent_MapToDataModelWithSuccess(t *testing.T) {
+
 	// Arrange
 
 	expectedResult := &model.Data{
-		SessionId: "1235",
-		WebsiteUrl: "https://ravelin.com",
+		SessionId:          "1235",
+		WebsiteUrl:         "https://ravelin.com",
 		FormCompletionTime: 12,
 	}
 
 	timeTakenEvent := &event_service.TimeTakenEvent{
-		EventType:  "timeTaken",
-		WebsiteUrl: "https://ravelin.com",
-		SessionId:  "1235",
+		EventType:          "timeTaken",
+		WebsiteUrl:         "https://ravelin.com",
+		SessionId:          "1235",
 		FormCompletionTime: 12,
 	}
 
 	// Act
 
-	res := screenResizeEvent.Map()
-
+	res := timeTakenEvent.Map()
 
 	// Assert
 
-	if expectedResult != res {
-		t.Errorf("Expected %v, got %v", expectedResult, res)
+	if expectedResult.FormCompletionTime != res.FormCompletionTime {
+		t.Errorf("Expected %v, got %v", expectedResult.FormCompletionTime, res.FormCompletionTime)
+	}
+
+	if expectedResult.SessionId != res.SessionId {
+		t.Errorf("Expected %v, got %v", expectedResult.SessionId, res.SessionId)
+	}
+
+	if expectedResult.WebsiteUrl != res.WebsiteUrl {
+		t.Errorf("Expected %v, got %v", expectedResult.WebsiteUrl, res.WebsiteUrl)
 	}
 }
 
-func TestMap_receiveCopyPasteEvent_MapToDataModelWithSuccess(t *testing.T){
-	
+func TestMap_receiveCopyPasteEvent_MapToDataModelWithSuccess(t *testing.T) {
+
 	// Arrange
 
 	expectedResult := &model.Data{
-		SessionId: "1235",
+		SessionId:  "1235",
 		WebsiteUrl: "https://ravelin.com",
 		CopyAndPaste: map[string]bool{
-			"testFormId": true
+			"testFormId": true,
 		},
 	}
 
@@ -93,18 +112,25 @@ func TestMap_receiveCopyPasteEvent_MapToDataModelWithSuccess(t *testing.T){
 		EventType:  "timeTaken",
 		WebsiteUrl: "https://ravelin.com",
 		SessionId:  "1235",
-		FormId: "testFormId",
-		Pasted: true,
+		FormId:     "testFormId",
+		Pasted:     true,
 	}
 
 	// Act
 
 	res := copyPasteEvent.Map()
 
-
 	// Assert
 
-	if expectedResult != res {
-		t.Errorf("Expected %v, got %v", expectedResult, res)
+	if expectedResult.CopyAndPaste["testFormId"] != res.CopyAndPaste["testFormId"] {
+		t.Errorf("Expected %v, got %v", expectedResult.WebsiteUrl, res.WebsiteUrl)
+	}
+
+	if expectedResult.SessionId != res.SessionId {
+		t.Errorf("Expected %v, got %v", expectedResult.WebsiteUrl, res.WebsiteUrl)
+	}
+
+	if expectedResult.WebsiteUrl != res.WebsiteUrl {
+		t.Errorf("Expected %v, got %v", expectedResult.WebsiteUrl, res.WebsiteUrl)
 	}
 }
