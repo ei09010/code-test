@@ -128,7 +128,6 @@ func TestValidate_receiveInvalidBecauseSessionIdScreenResizeEvent_returnsFalseAn
 
 	// Assert
 
-	// to validate booleans usually an expression such as Assert.IsTrue() is easier to read, but that doesn't seem to be available in the std library
 	if expectedResult != res {
 		t.Errorf("Expected %v, got %v", expectedResult, res)
 	}
@@ -182,7 +181,6 @@ func TestValidate_receiveInvalidBecauseHeightScreenResizeEvent_returnsFalseAndNi
 
 	// Assert
 
-	// to validate booleans usually an expression such as Assert.IsTrue() is easier to read, but that doesn't seem to be available in the std library
 	if expectedResult != res {
 		t.Errorf("Expected %v, got %v", expectedResult, res)
 	}
@@ -229,7 +227,6 @@ func TestValidate_receiveValidTimeTakenEvent_returnsTrueAndNil(t *testing.T) {
 
 	// Assert
 
-	// to validate booleans usually an expression such as Assert.IsTrue() is easier to read, but that doesn't seem to be available in the std library
 	if expectedResult != res {
 		t.Errorf("Expected %v, got %v", expectedResult, res)
 	}
@@ -276,7 +273,6 @@ func TestValidate_receiveInvalidBecauseSessionIdTimeTakenEvent_returnsFalseAndNi
 
 	// Assert
 
-	// to validate booleans usually an expression such as Assert.IsTrue() is easier to read, but that doesn't seem to be available in the std library
 	if expectedResult != res {
 		t.Errorf("Expected %v, got %v", expectedResult, res)
 	}
@@ -323,7 +319,6 @@ func TestValidate_receiveInvalidBecauseTimeTakenZeroTimeTakenEvent_returnsFalseA
 
 	// Assert
 
-	// to validate booleans usually an expression such as Assert.IsTrue() is easier to read, but that doesn't seem to be available in the std library
 	if expectedResult != res {
 		t.Errorf("Expected %v, got %v", expectedResult, res)
 	}
@@ -371,7 +366,6 @@ func TestValidate_receiveValidCopyPasteEvent_returnsTrueAndNil(t *testing.T) {
 
 	// Assert
 
-	// to validate booleans usually an expression such as Assert.IsTrue() is easier to read, but that doesn't seem to be available in the std library
 	if expectedResult != res {
 		t.Errorf("Expected %v, got %v", expectedResult, res)
 	}
@@ -419,7 +413,6 @@ func TestValidate_receiveInvalidBecauseSessionIdCopyPasteEvent_returnsFalseAndNi
 
 	// Assert
 
-	// to validate booleans usually an expression such as Assert.IsTrue() is easier to read, but that doesn't seem to be available in the std library
 	if expectedResult != res {
 		t.Errorf("Expected %v, got %v", expectedResult, res)
 	}
@@ -467,7 +460,6 @@ func TestValidate_receiveInvalidBecauseFormIdCopyPasteEvent_returnsFalseAndNil(t
 
 	// Assert
 
-	// to validate booleans usually an expression such as Assert.IsTrue() is easier to read, but that doesn't seem to be available in the std library
 	if expectedResult != res {
 		t.Errorf("Expected %v, got %v", expectedResult, res)
 	}
