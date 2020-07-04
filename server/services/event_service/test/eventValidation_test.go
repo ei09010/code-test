@@ -85,7 +85,7 @@ func TestValidate_receiveValidScreenResizeEvent_returnsTrueAndNil(t *testing.T) 
 
 }
 
-func TestValidate_receiveInvalidScreenResizeEvent_returnsFalseAndNil(t *testing.T) {
+func TestValidate_receiveInvalidBecauseSessionIdScreenResizeEvent_returnsFalseAndNil(t *testing.T) {
 
 	// Arrange
 
@@ -114,6 +114,60 @@ func TestValidate_receiveInvalidScreenResizeEvent_returnsFalseAndNil(t *testing.
 		SessionId:  "1235",
 		ResizeFrom: model.Dimension{
 			Height: "1",
+			Width:  "2",
+		},
+		ResizeTo: model.Dimension{
+			Height: "1",
+			Width:  "2",
+		},
+	}
+
+	// Act
+
+	res, err := screenResizeEvent.Validate()
+
+	// Assert
+
+	// to validate booleans usually an expression such as Assert.IsTrue() is easier to read, but that doesn't seem to be available in the std library
+	if expectedResult != res {
+		t.Errorf("Expected %v, got %v", expectedResult, res)
+	}
+
+	if err != nil {
+		t.Errorf("Expected %v, got %v", nil, err)
+	}
+
+}
+
+func TestValidate_receiveInvalidBecauseHeightScreenResizeEvent_returnsFalseAndNil(t *testing.T) {
+
+	// Arrange
+
+	getMock = func(sessionId string, websiteUrl string) (*model.Data, error) {
+		return &model.Data{}, nil
+	}
+
+	initUserMock = func(sessionId string, websiteUrl string) (*model.Data, error) {
+		return &model.Data{}, nil
+	}
+
+	saveMock = func(receivedSessionData *model.Data) error {
+		return nil
+	}
+
+	updateMock = func(receivedSessionData *model.Data) (*model.Data, error) {
+		return &model.Data{}, nil
+	}
+
+	repository.SessionsData = sessionDataStorageMock{}
+	expectedResult := false
+
+	screenResizeEvent := &event_service.ScreenResizeEvent{
+		EventType:  "screenResize",
+		WebsiteUrl: "https://ravelin.com",
+		SessionId:  "1235",
+		ResizeFrom: model.Dimension{
+			Height: "",
 			Width:  "2",
 		},
 		ResizeTo: model.Dimension{
