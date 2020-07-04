@@ -20,19 +20,22 @@ func Init() {
 	}
 }
 
-func InitUserSession(sessionId string, websiteUrl string) {
+func (evStore *eventStorage) InitUserSession(sessionId string, websiteUrl string) (*model.Data, error) {
 
-	tempData := &model.Data{
+	dataToReturn := &model.Data{
 		SessionId:    sessionId,
 		WebsiteUrl:   websiteUrl,
 		CopyAndPaste: make(map[string]bool),
 	}
 
-	err := SessionsData.Save(tempData)
+	err := SessionsData.Save(dataToReturn)
 
 	if err != nil {
 		log.Println("Error while saving session data", err)
+		return nil, err
 	}
+
+	return dataToReturn, nil
 }
 
 func (evStore *eventStorage) Save(receivedSessionData *model.Data) error {

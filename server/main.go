@@ -1,9 +1,9 @@
 package main
 
 import (
-	"code-test/server/model"
 	"code-test/server/repository"
 	"code-test/server/services/event_service"
+	"code-test/server/services/hash_service"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -18,12 +18,17 @@ const (
 	errorUpdatingData     = "Error updating data in the repository"
 	invalidObject         = "The received object is invalid"
 	errorValidatingObject = "Error validating object"
+	errorSessionId        = "Error in session id generation"
+
+	// this value corresponds to 30 minutes in seconds. It is for demo purposes, and is based in a quick google search: "average session duration"
+	sessionLength = 1800
 )
 
 func main() {
 	http.HandleFunc("/screenresize", handleScreenResizeEvents)
 	http.HandleFunc("/timetaken", handleTimeTakenEvents)
 	http.HandleFunc("/copypaste", handleCopyPasteEvents)
+	http.HandleFunc("/session", handleSessionCreation)
 
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
@@ -88,80 +93,135 @@ func handleScreenResizeEvents(responseWriter http.ResponseWriter, request *http.
 
 func handleTimeTakenEvents(responseWriter http.ResponseWriter, request *http.Request) {
 
+	// validate request method and body
+	if request.Method != http.MethodPost {
+
+		log.Println(invalidMethodReceived)
+		http.Error(responseWriter, invalidMethodReceived, http.StatusMethodNotAllowed)
+		return
+	}
+
 	body, err := ioutil.ReadAll(request.Body)
 
 	if err != nil {
-		log.Println("Unable to read body, returned the following error", err)
+
+		log.Println(unableToReadBody, "with error", err)
+		http.Error(responseWriter, unableToReadBody, http.StatusBadRequest)
 		return
 	}
 
 	timeTakenReceived := &event_service.TimeTakenEvent{}
 
 	if err = json.Unmarshal(body, timeTakenReceived); err != nil {
-		log.Println("Unable to unMarshall request body, returned the following error", err)
+
+		log.Println(unableToUnmarshall, "with error", err)
+		http.Error(responseWriter, unableToUnmarshall, http.StatusBadRequest)
 		return
 	}
 
-	dataToStore := &model.Data{
-		WebsiteUrl: timeTakenReceived.WebsiteUrl,
-		SessionId:  timeTakenReceived.SessionId,
+	// validate payload content
+	isValid, err := timeTakenReceived.Validate()
 
-		FormCompletionTime: timeTakenReceived.FormCompletionTime,
+	if err != nil {
+		log.Println(errorValidatingObject, "with error", err)
+		http.Error(responseWriter, errorValidatingObject, http.StatusInternalServerError)
+		return
 	}
 
-	// validate method POST
+	if !isValid {
+		log.Println(invalidObject, "with error", err)
+		http.Error(responseWriter, invalidObject, http.StatusBadRequest)
+		return
+	}
 
-	// validate event type -> declare consts with event types expected and check if event type is any of the expected
-
-	// auxiliar method to validate webSiteUrl (regex ? )
+	// process payload content
+	dataToStore := timeTakenReceived.Map()
 
 	updatedData, err := repository.SessionsData.Update(dataToStore)
 
-	fmt.Printf("Session Data after time taken event update %+v", updatedData)
+	if err != nil {
+
+		log.Println(errorUpdatingData, "with error", err)
+		http.Error(responseWriter, errorUpdatingData, http.StatusInternalServerError)
+		return
+	}
+
+	fmt.Printf("Session Data after time taken event update:\n %+v", updatedData)
 }
 
 func handleCopyPasteEvents(responseWriter http.ResponseWriter, request *http.Request) {
 
+	// validate request method and body
+	if request.Method != http.MethodPost {
+
+		log.Println(invalidMethodReceived)
+		http.Error(responseWriter, invalidMethodReceived, http.StatusMethodNotAllowed)
+		return
+	}
+
 	body, err := ioutil.ReadAll(request.Body)
 
 	if err != nil {
-		log.Println("Unable to read body, returned the following error", err)
+
+		log.Println(unableToReadBody, "with error", err)
+		http.Error(responseWriter, unableToReadBody, http.StatusBadRequest)
 		return
 	}
 
 	copyPasteReceived := &event_service.CopyPasteEvent{}
 
 	if err = json.Unmarshal(body, copyPasteReceived); err != nil {
-		log.Println("Unable to unMarshall request body, returned the following error", err)
+
+		log.Println(unableToUnmarshall, "with error", err)
+		http.Error(responseWriter, unableToUnmarshall, http.StatusBadRequest)
 		return
 	}
 
-	dataToStore := &model.Data{
-		WebsiteUrl: copyPasteReceived.WebsiteUrl,
-		SessionId:  copyPasteReceived.SessionId,
+	// validate payload content
+	isValid, err := copyPasteReceived.Validate()
 
-		CopyAndPaste: map[string]bool{
-			copyPasteReceived.FormId: copyPasteReceived.Pasted,
-		},
+	if err != nil {
+		log.Println(errorValidatingObject, "with error", err)
+		http.Error(responseWriter, errorValidatingObject, http.StatusInternalServerError)
+		return
 	}
 
-	// validate method POST
+	if !isValid {
+		log.Println(invalidObject, "with error", err)
+		http.Error(responseWriter, invalidObject, http.StatusBadRequest)
+		return
+	}
 
-	// validate event type -> declare consts with event types expected and check if event type is any of the expected
-
-	// auxiliar method to validate webSiteUrl (regex ? )
+	// process payload content
+	dataToStore := copyPasteReceived.Map()
 
 	updatedData, err := repository.SessionsData.Update(dataToStore)
 
-	fmt.Printf("Session Data after copy paste update %+v", updatedData)
+	if err != nil {
+		log.Println(errorUpdatingData, "with error", err)
+		http.Error(responseWriter, errorUpdatingData, http.StatusInternalServerError)
+		return
+	}
+
+	fmt.Printf("Session Data after copy paste update:\n %+v", updatedData)
 }
 
 func handleSessionCreation(responseWriter http.ResponseWriter, request *http.Request) {
 
+	// validate request method and body
+	if request.Method != http.MethodPost {
+
+		log.Println(invalidMethodReceived)
+		http.Error(responseWriter, invalidMethodReceived, http.StatusMethodNotAllowed)
+		return
+	}
+
 	body, err := ioutil.ReadAll(request.Body)
 
 	if err != nil {
-		log.Println("Unable to read body, returned the following error", err)
+
+		log.Println(unableToReadBody, "with error", err)
+		http.Error(responseWriter, unableToReadBody, http.StatusBadRequest)
 		return
 	}
 
@@ -172,19 +232,49 @@ func handleSessionCreation(responseWriter http.ResponseWriter, request *http.Req
 		return
 	}
 
-	// validate method POST
+	// validate payload content
+	err = sessionReceived.Validate()
 
-	// auxiliar method to validate webSiteUrl
+	if err != nil {
+		log.Println(invalidObject, "with error", err)
+		http.Error(responseWriter, invalidObject, http.StatusBadRequest)
+		return
+	}
 
-	// generate session Id
-	sessionId := "generated session id" //TODO
+	// process payload content
 
-	// return to client
+	sessionId, err := generateSessionId()
 
-	//TODO
+	if err != nil {
+		log.Println(errorSessionId, "with error", err)
+		http.Error(responseWriter, errorSessionId, http.StatusInternalServerError)
+		return
+	}
 
-	// store in Db
+	updatedData, err := repository.SessionsData.InitUserSession(sessionId, sessionReceived.WebsiteUrl)
 
-	repository.InitUserSession(sessionId, sessionReceived.WebsiteUrl)
+	if err != nil {
+		log.Println(errorSessionId, "with error", err)
+		http.Error(responseWriter, errorSessionId, http.StatusInternalServerError)
+		return
+	}
 
+	cookieObject := &http.Cookie{
+		Name:   "session",
+		Value:  sessionId,
+		MaxAge: sessionLength,
+	}
+
+	http.SetCookie(responseWriter, cookieObject)
+
+	fmt.Printf("Session Data after sessionId creation :\n %+v", updatedData)
+
+	fmt.Printf("Hashed webSiteUrl: %s", hash_service.Generate(sessionReceived.WebsiteUrl))
+
+}
+
+func generateSessionId() (string, error) {
+
+	// DEFINE SESSION ID GENERATION
+	return "", nil
 }
