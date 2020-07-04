@@ -23,9 +23,6 @@ const (
 
 	// this value corresponds to 30 minutes in seconds. It is for demo purposes, and is based in a quick google search: "average session duration"
 	sessionLength = 1800
-
-	// this value is never changed, and is built to enable xor in the hashing algorithm
-	baseValueForHashing = "myNewBaseValueForHashing"
 )
 
 func HandleScreenResizeEvents(responseWriter http.ResponseWriter, request *http.Request) {
@@ -264,7 +261,7 @@ func HandleSessionCreation(responseWriter http.ResponseWriter, request *http.Req
 
 	fmt.Printf("Session Data after sessionId creation :\n %+v", updatedData)
 
-	fmt.Printf("Hashed webSiteUrl: %s", hash_service.Generate(sessionReceived.WebsiteUrl, baseValueForHashing))
+	fmt.Printf("Hashed webSiteUrl: %s", hash_service.Generate(sessionReceived.WebsiteUrl))
 
 }
 

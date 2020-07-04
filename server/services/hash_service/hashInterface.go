@@ -1,5 +1,5 @@
-// package hash_service
+package hash_service
 
-// type Hash interface{
-// 	Generate() interface{}
-// }
+type Hash interface {
+	Generate(websiteUrl string, baseValue string) interface{}
+}

@@ -1,16 +1,22 @@
 package hash_service
 
-// returns hash generated based on XOR with a pre-defined base value
-func Generate(websiteUrl string, baseValue string) string {
+import "fmt"
 
-	var xorbytes []byte
+// fletcher32 simplified implementation
+func Generate(websiteUrl string) string {
 
-	xorbytes = make([]byte, len(websiteUrl))
+	webSiteBytes := []byte(websiteUrl)
 
-	var i int
-	for i = 0; i < len(websiteUrl); i++ {
-		xorbytes[i] = websiteUrl[i] ^ baseValue[i]
+	sum1 := uint32(0)
+	sum2 := uint32(0)
+
+	for i := 0; i < len(webSiteBytes); i++ {
+		sum1 = (sum1 + uint32(webSiteBytes[i])) % 0xffff
+		sum2 = (sum2 + sum1) % 0xffff
 	}
 
-	return string(xorbytes)
+	finalSum := (sum2<<16 | sum1)
+	// returns 32 bit hash in hexadecimal format
+	return fmt.Sprintf("%x", finalSum)
+
 }
