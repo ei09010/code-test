@@ -63,8 +63,7 @@ func HandleScreenResizeEvents(responseWriter http.ResponseWriter, request *http.
 	}
 
 	if !isValid {
-		log.Println(invalidObject, "with error", err)
-		http.Error(responseWriter, invalidObject, http.StatusBadRequest)
+		log.Println(invalidObject)
 		return
 	}
 
@@ -222,7 +221,7 @@ func HandleSessionCreation(responseWriter http.ResponseWriter, request *http.Req
 	var sessionReceived SessionEvent
 
 	if err = json.Unmarshal([]byte(body), &sessionReceived); err != nil {
-		log.Println("Unable to unMarshall request body, returned the following error", err)
+		log.Println("Unable to unMarshall request body, returned the following error: ", err)
 		return
 	}
 
@@ -245,6 +244,8 @@ func HandleSessionCreation(responseWriter http.ResponseWriter, request *http.Req
 		return
 	}
 
+	log.Printf("Initiating user session with sessionId: %v and url: %v.....", sessionId, sessionReceived.WebsiteURL)
+
 	updatedData, err := repository.SessionsData.InitUserSession(sessionId, sessionReceived.WebsiteURL)
 
 	if err != nil {
@@ -261,7 +262,7 @@ func HandleSessionCreation(responseWriter http.ResponseWriter, request *http.Req
 
 	http.SetCookie(responseWriter, cookieObject)
 
-	fmt.Printf("Session Data after sessionId creation :\n %+v", updatedData)
+	fmt.Printf("Session Data after sessionId creation :\n %+#v", updatedData)
 
 	fmt.Printf("Hashed webSiteUrl: %s", hash_service.Generate(sessionReceived.WebsiteURL))
 

@@ -9,7 +9,7 @@ import (
 
 var SessionsData SessionData
 
-func Init() {
+func init() {
 	SessionsData = &SessionDataStorage{
 		sessionData: make(map[string]*model.Data),
 		mu:          sync.Mutex{},

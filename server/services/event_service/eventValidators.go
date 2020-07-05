@@ -58,6 +58,8 @@ func (timeEvent *TimeTakenEvent) Validate() (bool, error) {
 
 	isValid, err := sessionExists(timeEvent.SessionId, timeEvent.WebsiteUrl)
 
+	isValid = timeEvent.Time > 0
+
 	if err != nil {
 		return false, err
 	}
@@ -65,8 +67,6 @@ func (timeEvent *TimeTakenEvent) Validate() (bool, error) {
 	if !isValid {
 		return false, nil
 	}
-
-	isValid = timeEvent.Time > 0
 
 	return isValid, nil
 }
