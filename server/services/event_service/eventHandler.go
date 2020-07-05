@@ -79,7 +79,7 @@ func HandleScreenResizeEvents(responseWriter http.ResponseWriter, request *http.
 		return
 	}
 
-	fmt.Printf("Session Data after screenSize update:\n %+v", updatedData)
+	fmt.Printf("Session Data after screenSize update:\n %+v \n\n", updatedData)
 }
 
 func HandleTimeTakenEvents(responseWriter http.ResponseWriter, request *http.Request) {
@@ -122,7 +122,7 @@ func HandleTimeTakenEvents(responseWriter http.ResponseWriter, request *http.Req
 	}
 
 	if !isValid {
-		log.Println(invalidObject, "with error", err)
+		log.Println(invalidObject)
 		http.Error(responseWriter, invalidObject, http.StatusBadRequest)
 		return
 	}
@@ -139,7 +139,7 @@ func HandleTimeTakenEvents(responseWriter http.ResponseWriter, request *http.Req
 		return
 	}
 
-	fmt.Printf("Session Data after time taken event update:\n %+v", updatedData)
+	fmt.Printf("Session Data after time taken event update:\n %+v \n\n", updatedData)
 }
 
 func HandleCopyPasteEvents(responseWriter http.ResponseWriter, request *http.Request) {
@@ -196,7 +196,7 @@ func HandleCopyPasteEvents(responseWriter http.ResponseWriter, request *http.Req
 		return
 	}
 
-	fmt.Printf("Session Data after copy paste update:\n %+v", updatedData)
+	fmt.Printf("Session Data after copy paste update:\n %+v \n\n", updatedData)
 }
 
 func HandleSessionCreation(responseWriter http.ResponseWriter, request *http.Request) {
@@ -229,7 +229,7 @@ func HandleSessionCreation(responseWriter http.ResponseWriter, request *http.Req
 	err = sessionReceived.Validate()
 
 	if err != nil {
-		log.Println(invalidObject, "with error", err)
+		log.Println(invalidObject)
 		http.Error(responseWriter, invalidObject, http.StatusBadRequest)
 		return
 	}
@@ -244,7 +244,7 @@ func HandleSessionCreation(responseWriter http.ResponseWriter, request *http.Req
 		return
 	}
 
-	log.Printf("Initiating user session with sessionId: %v and url: %v.....", sessionId, sessionReceived.WebsiteURL)
+	log.Printf("Initiating user session with sessionId: %v and url: %v.....\n", sessionId, sessionReceived.WebsiteURL)
 
 	updatedData, err := repository.SessionsData.InitUserSession(sessionId, sessionReceived.WebsiteURL)
 
@@ -262,9 +262,9 @@ func HandleSessionCreation(responseWriter http.ResponseWriter, request *http.Req
 
 	http.SetCookie(responseWriter, cookieObject)
 
-	fmt.Printf("Session Data after sessionId creation :\n %+#v", updatedData)
+	fmt.Printf("\nSession Data after sessionId creation :\n %+#v \n", updatedData)
 
-	fmt.Printf("Hashed webSiteUrl: %s", hash_service.Generate(sessionReceived.WebsiteURL))
+	fmt.Printf("\nHashed websiteUrl: %s \n", hash_service.Generate(sessionReceived.WebsiteURL))
 
 }
 
