@@ -254,10 +254,13 @@ func HandleSessionCreation(responseWriter http.ResponseWriter, request *http.Req
 	}
 
 	cookieObject := &http.Cookie{
-		Name:   "session",
-		Value:  sessionId,
-		MaxAge: sessionLength,
+		Name:     "session",
+		Value:    sessionId,
+		MaxAge:   sessionLength,
+		HttpOnly: true,
 	}
+
+	// not being able to access cookies, will have to return through response writer
 
 	http.SetCookie(responseWriter, cookieObject)
 
