@@ -8,9 +8,7 @@ import (
 func TestGenerate_ReceivesValidValues_ReturnsExpectedHash(t *testing.T) {
 
 	// Arrange
-
 	expectedHash := "2b8605d8"
-
 	valueToHash := "firstTestInput"
 
 	// Act
@@ -26,9 +24,7 @@ func TestGenerate_ReceivesValidValues_ReturnsExpectedHash(t *testing.T) {
 func TestGenerate_ReceivesEmpty_ReturnsExpectedHash(t *testing.T) {
 
 	// Arrange
-
 	expectedHash := "0"
-
 	valueToHash := ""
 
 	// Act

@@ -21,15 +21,6 @@ type SessionDataStorage struct {
 	mu          sync.Mutex
 }
 
-// I'm having a persisting issue that prompted me to crate this method: eventhough my test file and this file are in the same package, I'm not being able to access
-// SessionDataStorage private properties (lower case). If I have time available, will keep trying to fix
-func GetInstance() *SessionDataStorage {
-	return &SessionDataStorage{
-		sessionData: make(map[string]*model.Data),
-		mu:          sync.Mutex{},
-	}
-}
-
 func (sDataStore *SessionDataStorage) InitUserSession(sessionId string, websiteUrl string) (*model.Data, error) {
 
 	dataToReturn := &model.Data{
@@ -137,4 +128,13 @@ func (sDataStore *SessionDataStorage) Update(receivedSessionData *model.Data) (*
 
 func buildKey(sessionId string, websiteUrl string) string {
 	return sessionId + "|" + websiteUrl
+}
+
+// I'm having a persisting issue that prompted me to create this method: eventhough my test file and this file are in the same package, I'm not being able to access
+// SessionDataStorage private properties (lower case) to arrange test cases. If I have time available, will keep trying to fix this
+func GetInstance() *SessionDataStorage {
+	return &SessionDataStorage{
+		sessionData: make(map[string]*model.Data),
+		mu:          sync.Mutex{},
+	}
 }

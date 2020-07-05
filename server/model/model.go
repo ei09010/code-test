@@ -1,5 +1,7 @@
 package model
 
+// Objects that represent the webServer data model
+
 type Data struct {
 	WebsiteUrl   string
 	SessionId    string

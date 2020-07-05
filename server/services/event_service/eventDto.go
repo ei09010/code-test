@@ -4,6 +4,8 @@ import (
 	"code-test/server/model"
 )
 
+// the sole purpose of this data transfer objects is to hold data that will mapped to the repository layer
+
 type ScreenResizeEvent struct {
 	EventType  string `json:"eventType"`
 	WebsiteUrl string `json:"websiteUrl"`

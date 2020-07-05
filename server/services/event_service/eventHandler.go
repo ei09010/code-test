@@ -235,7 +235,6 @@ func HandleSessionCreation(responseWriter http.ResponseWriter, request *http.Req
 	}
 
 	// process payload content
-
 	sessionId, err := generateSessionId()
 
 	if err != nil {

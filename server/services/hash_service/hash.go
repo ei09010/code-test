@@ -3,6 +3,10 @@ package hash_service
 import "fmt"
 
 // fletcher32 simplified implementation
+// implementation based on a google search
+
+// returns 32 bit hash in hexadecimal format
+
 func Generate(websiteUrl string) string {
 
 	webSiteBytes := []byte(websiteUrl)
@@ -16,7 +20,7 @@ func Generate(websiteUrl string) string {
 	}
 
 	finalSum := (sum2<<16 | sum1)
-	// returns 32 bit hash in hexadecimal format
+
 	return fmt.Sprintf("%x", finalSum)
 
 }
