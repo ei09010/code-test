@@ -1,38 +1,9 @@
 package event_service
 
 import (
-	"code-test/server/model"
 	"code-test/server/repository"
 	"net/url"
 )
-
-type ScreenResizeEvent struct {
-	EventType  string `json:"eventType"`
-	WebsiteUrl string `json:"websiteUrl"`
-	SessionId  string `json:"sessionId"`
-	ResizeFrom model.Dimension
-	ResizeTo   model.Dimension
-}
-
-type CopyPasteEvent struct {
-	EventType  string
-	WebsiteUrl string
-	SessionId  string
-	Pasted     bool // map[fieldId]true
-	FormId     string
-}
-
-//"{\"eventType\":\"timeTaken\",\"websiteUrl\":\"https://ravelin.com\",\"sessionId\":\"123123-123123-123123123\",\"time\":72}"
-type TimeTakenEvent struct {
-	EventType  string `json:"eventType"`
-	WebsiteUrl string `json:"websiteUrl"`
-	SessionId  string `json:"sessionId"`
-	Time       int    `json:"time"` // seconds
-}
-
-type SessionEvent struct {
-	WebsiteURL string `json:"websiteUrl"`
-}
 
 func (scrEvent *ScreenResizeEvent) Validate() (bool, error) {
 
