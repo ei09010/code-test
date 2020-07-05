@@ -65,16 +65,16 @@ func TestMap_receiveTimeTakenEvent_MapToDataModelWithSuccess(t *testing.T) {
 	// Arrange
 
 	expectedResult := &model.Data{
-		SessionId:          "1235",
-		WebsiteUrl:         "https://ravelin.com",
-		FormCompletionTime: 12,
+		SessionId:  "1235",
+		WebsiteUrl: "https://ravelin.com",
+		Time:       12,
 	}
 
 	timeTakenEvent := &event_service.TimeTakenEvent{
-		EventType:          "timeTaken",
-		WebsiteUrl:         "https://ravelin.com",
-		SessionId:          "1235",
-		FormCompletionTime: 12,
+		EventType:  "timeTaken",
+		WebsiteUrl: "https://ravelin.com",
+		SessionId:  "1235",
+		Time:       12,
 	}
 
 	// Act
@@ -83,8 +83,8 @@ func TestMap_receiveTimeTakenEvent_MapToDataModelWithSuccess(t *testing.T) {
 
 	// Assert
 
-	if expectedResult.FormCompletionTime != res.FormCompletionTime {
-		t.Errorf("Expected %v, got %v", expectedResult.FormCompletionTime, res.FormCompletionTime)
+	if expectedResult.Time != res.Time {
+		t.Errorf("Expected %v, got %v", expectedResult.Time, res.Time)
 	}
 
 	if expectedResult.SessionId != res.SessionId {

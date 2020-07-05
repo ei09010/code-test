@@ -25,7 +25,7 @@ func (timeEvent *TimeTakenEvent) Map() *model.Data {
 		WebsiteUrl: timeEvent.WebsiteUrl,
 		SessionId:  timeEvent.SessionId,
 
-		FormCompletionTime: timeEvent.FormCompletionTime,
+		Time: timeEvent.Time,
 	}
 
 	return dataToReturn

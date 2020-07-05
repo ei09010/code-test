@@ -215,10 +215,10 @@ func TestValidate_receiveValidTimeTakenEvent_returnsTrueAndNil(t *testing.T) {
 	expectedResult := true
 
 	timeTakenEvent := &event_service.TimeTakenEvent{
-		EventType:          "screenResize",
-		WebsiteUrl:         "https://ravelin.com",
-		SessionId:          "1235",
-		FormCompletionTime: 30,
+		EventType:  "screenResize",
+		WebsiteUrl: "https://ravelin.com",
+		SessionId:  "1235",
+		Time:       30,
 	}
 
 	// Act
@@ -261,10 +261,10 @@ func TestValidate_receiveInvalidBecauseSessionIdTimeTakenEvent_returnsFalseAndNi
 	expectedResult := false
 
 	timeTakenEvent := &event_service.TimeTakenEvent{
-		EventType:          "screenResize",
-		WebsiteUrl:         "https://ravelin.com",
-		SessionId:          "1235",
-		FormCompletionTime: 30,
+		EventType:  "screenResize",
+		WebsiteUrl: "https://ravelin.com",
+		SessionId:  "1235",
+		Time:       30,
 	}
 
 	// Act
@@ -307,10 +307,10 @@ func TestValidate_receiveInvalidBecauseTimeTakenZeroTimeTakenEvent_returnsFalseA
 	expectedResult := false
 
 	timeTakenEvent := &event_service.TimeTakenEvent{
-		EventType:          "screenResize",
-		WebsiteUrl:         "https://ravelin.com",
-		SessionId:          "1235",
-		FormCompletionTime: 0,
+		EventType:  "screenResize",
+		WebsiteUrl: "https://ravelin.com",
+		SessionId:  "1235",
+		Time:       0,
 	}
 
 	// Act

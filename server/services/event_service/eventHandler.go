@@ -44,9 +44,9 @@ func HandleScreenResizeEvents(responseWriter http.ResponseWriter, request *http.
 		return
 	}
 
-	screenResizeReceived := &ScreenResizeEvent{}
+	var screenResizeReceived ScreenResizeEvent
 
-	if err = json.Unmarshal(body, screenResizeReceived); err != nil {
+	if err = json.Unmarshal(body, &screenResizeReceived); err != nil {
 
 		log.Println(unableToUnmarshall, "with error", err)
 		http.Error(responseWriter, unableToUnmarshall, http.StatusBadRequest)
@@ -102,9 +102,11 @@ func HandleTimeTakenEvents(responseWriter http.ResponseWriter, request *http.Req
 		return
 	}
 
-	timeTakenReceived := &TimeTakenEvent{}
+	defer request.Body.Close()
 
-	if err = json.Unmarshal(body, timeTakenReceived); err != nil {
+	var timeTakenReceived TimeTakenEvent
+
+	if err = json.Unmarshal(body, &timeTakenReceived); err != nil {
 
 		log.Println(unableToUnmarshall, "with error", err)
 		http.Error(responseWriter, unableToUnmarshall, http.StatusBadRequest)
@@ -160,9 +162,9 @@ func HandleCopyPasteEvents(responseWriter http.ResponseWriter, request *http.Req
 		return
 	}
 
-	copyPasteReceived := &CopyPasteEvent{}
+	var copyPasteReceived CopyPasteEvent
 
-	if err = json.Unmarshal(body, copyPasteReceived); err != nil {
+	if err = json.Unmarshal(body, &copyPasteReceived); err != nil {
 
 		log.Println(unableToUnmarshall, "with error", err)
 		http.Error(responseWriter, unableToUnmarshall, http.StatusBadRequest)
@@ -217,9 +219,9 @@ func HandleSessionCreation(responseWriter http.ResponseWriter, request *http.Req
 		return
 	}
 
-	sessionReceived := &SessionEvent{}
+	var sessionReceived SessionEvent
 
-	if err = json.Unmarshal(body, sessionReceived); err != nil {
+	if err = json.Unmarshal([]byte(body), &sessionReceived); err != nil {
 		log.Println("Unable to unMarshall request body, returned the following error", err)
 		return
 	}
@@ -243,7 +245,7 @@ func HandleSessionCreation(responseWriter http.ResponseWriter, request *http.Req
 		return
 	}
 
-	updatedData, err := repository.SessionsData.InitUserSession(sessionId, sessionReceived.WebsiteUrl)
+	updatedData, err := repository.SessionsData.InitUserSession(sessionId, sessionReceived.WebsiteURL)
 
 	if err != nil {
 		log.Println(errorSessionId, "with error", err)
@@ -261,7 +263,7 @@ func HandleSessionCreation(responseWriter http.ResponseWriter, request *http.Req
 
 	fmt.Printf("Session Data after sessionId creation :\n %+v", updatedData)
 
-	fmt.Printf("Hashed webSiteUrl: %s", hash_service.Generate(sessionReceived.WebsiteUrl))
+	fmt.Printf("Hashed webSiteUrl: %s", hash_service.Generate(sessionReceived.WebsiteURL))
 
 }
 

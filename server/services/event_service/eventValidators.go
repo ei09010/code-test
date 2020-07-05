@@ -7,9 +7,9 @@ import (
 )
 
 type ScreenResizeEvent struct {
-	EventType  string
-	WebsiteUrl string
-	SessionId  string
+	EventType  string `json:"eventType"`
+	WebsiteUrl string `json:"websiteUrl"`
+	SessionId  string `json:"sessionId"`
 	ResizeFrom model.Dimension
 	ResizeTo   model.Dimension
 }
@@ -22,15 +22,16 @@ type CopyPasteEvent struct {
 	FormId     string
 }
 
+//"{\"eventType\":\"timeTaken\",\"websiteUrl\":\"https://ravelin.com\",\"sessionId\":\"123123-123123-123123123\",\"time\":72}"
 type TimeTakenEvent struct {
-	EventType          string
-	WebsiteUrl         string
-	SessionId          string
-	FormCompletionTime int // Seconds
+	EventType  string `json:"eventType"`
+	WebsiteUrl string `json:"websiteUrl"`
+	SessionId  string `json:"sessionId"`
+	Time       int    `json:"time"` // seconds
 }
 
 type SessionEvent struct {
-	WebsiteUrl string
+	WebsiteURL string `json:"websiteUrl"`
 }
 
 func (scrEvent *ScreenResizeEvent) Validate() (bool, error) {
@@ -65,7 +66,7 @@ func (timeEvent *TimeTakenEvent) Validate() (bool, error) {
 		return false, nil
 	}
 
-	isValid = timeEvent.FormCompletionTime > 0
+	isValid = timeEvent.Time > 0
 
 	return isValid, nil
 }
@@ -90,7 +91,7 @@ func (cpEvent *CopyPasteEvent) Validate() (bool, error) {
 func (sEvent *SessionEvent) Validate() error {
 
 	// standard library function to parse raw url and assess if it fits a native URL structure
-	_, err := url.ParseRequestURI(sEvent.WebsiteUrl)
+	_, err := url.ParseRequestURI(sEvent.WebsiteURL)
 
 	if err != nil {
 		return err

@@ -2,23 +2,13 @@ package repository
 
 import (
 	"code-test/server/model"
-	"sync"
 )
 
 // Session Repository interface is declared for the following reasons:
 //   1 - By declaring this methods signature, every session repository implemented behaviour should should follow this methods
 //   2 - If in the future I decided to switch to a different storage for my session related data (e. g. persistent data storage), the method signature would stand
 // 	everywhere in the app, and all change will be concentrated in this methods implementation
-//   3 - Interface declaration would also enable me to use dependency injection
-
-var SessionsData SessionData
-
-func Init() {
-	SessionsData = &SessionDataStorage{
-		sessionData: make(map[string]*model.Data),
-		mu:          sync.Mutex{},
-	}
-}
+//   3 - Interface declaration enables me to have better testability - I can crate mock implementations of this methods to implement unit tests
 
 type SessionData interface {
 	Save(receivedSessionData *model.Data) error                               //set session data object

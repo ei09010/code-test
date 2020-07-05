@@ -7,9 +7,27 @@ import (
 	"sync"
 )
 
+var SessionsData SessionData
+
+func Init() {
+	SessionsData = &SessionDataStorage{
+		sessionData: make(map[string]*model.Data),
+		mu:          sync.Mutex{},
+	}
+}
+
 type SessionDataStorage struct {
 	sessionData map[string]*model.Data
 	mu          sync.Mutex
+}
+
+// I'm having a persisting issue that prompted me to crate this method: eventhough my test file and this file are in the same package, I'm not being able to access
+// SessionDataStorage private properties (lower case). If I have time available, will keep trying to fix
+func GetInstance() *SessionDataStorage {
+	return &SessionDataStorage{
+		sessionData: make(map[string]*model.Data),
+		mu:          sync.Mutex{},
+	}
 }
 
 func (sDataStore *SessionDataStorage) InitUserSession(sessionId string, websiteUrl string) (*model.Data, error) {
@@ -72,9 +90,9 @@ func (sDataStore *SessionDataStorage) Update(receivedSessionData *model.Data) (*
 
 		// store time taken events
 
-		if receivedSessionData.FormCompletionTime > 0 {
+		if receivedSessionData.Time > 0 {
 
-			dataStored.FormCompletionTime = receivedSessionData.FormCompletionTime
+			dataStored.Time = receivedSessionData.Time
 		}
 
 		// store copy paste events
@@ -82,6 +100,12 @@ func (sDataStore *SessionDataStorage) Update(receivedSessionData *model.Data) (*
 
 		for k, v := range receivedSessionData.CopyAndPaste {
 			if _, ok := dataStored.CopyAndPaste[k]; !ok {
+
+				// delete map default value create when initializing session
+				if _, ok := dataStored.CopyAndPaste[""]; ok {
+					delete(dataStored.CopyAndPaste, "")
+				}
+
 				dataStored.CopyAndPaste[k] = v
 			}
 		}
@@ -104,7 +128,7 @@ func (sDataStore *SessionDataStorage) Update(receivedSessionData *model.Data) (*
 
 	} else {
 
-		sDataStore.sessionData[mapKey] = receivedSessionData
+		return nil, errors.New("This session is not created. Unable to update any object")
 	}
 
 	return sDataStore.sessionData[mapKey], nil
