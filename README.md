@@ -63,7 +63,7 @@ type Data struct {
 	ResizeFrom         Dimension
 	ResizeTo           Dimension
 	CopyAndPaste       map[string]bool // map[fieldId]true
-	FormCompletionTime int // Seconds
+	Time int // Seconds
 }
 
 type Dimension struct {

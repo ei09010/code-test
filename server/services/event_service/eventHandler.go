@@ -6,7 +6,6 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -80,7 +79,7 @@ func HandleScreenResizeEvents(responseWriter http.ResponseWriter, request *http.
 		return
 	}
 
-	fmt.Printf("Session Data after screenSize update:\n %+v \n\n", updatedData)
+	log.Printf("Session Data after screenSize update:\n %+v \n\n", updatedData)
 }
 
 func HandleTimeTakenEvents(responseWriter http.ResponseWriter, request *http.Request) {
@@ -140,7 +139,7 @@ func HandleTimeTakenEvents(responseWriter http.ResponseWriter, request *http.Req
 		return
 	}
 
-	fmt.Printf("Session Data after time taken event update:\n %+v \n\n", updatedData)
+	log.Printf("Session Data after time taken event update:\n %+v \n\n", updatedData)
 }
 
 func HandleCopyPasteEvents(responseWriter http.ResponseWriter, request *http.Request) {
@@ -197,7 +196,7 @@ func HandleCopyPasteEvents(responseWriter http.ResponseWriter, request *http.Req
 		return
 	}
 
-	fmt.Printf("Session Data after copy paste update:\n %+v \n\n", updatedData)
+	log.Printf("Session Data after copy paste update:\n %+v \n\n", updatedData)
 }
 
 func HandleSessionCreation(responseWriter http.ResponseWriter, request *http.Request) {
@@ -281,9 +280,9 @@ func HandleSessionCreation(responseWriter http.ResponseWriter, request *http.Req
 		return
 	}
 
-	fmt.Printf("\nSession Data after sessionId creation :\n %+#v \n", updatedData)
+	log.Printf("\nSession Data after sessionId creation :\n %+#v \n", updatedData)
 
-	fmt.Printf("\nHashed websiteUrl: %s \n", hash_service.Generate(sessionReceived.WebsiteURL))
+	log.Printf("\nHashed websiteUrl: %s \n", hash_service.Generate(sessionReceived.WebsiteURL))
 }
 
 // Returns a 36-character string in the form XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX
