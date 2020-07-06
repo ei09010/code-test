@@ -93,9 +93,11 @@ $(document).ready(function () {
          //windowResizeEventListener
          windowResizeEventListener()
 
-         // timeTakenEventListener
+        // copyPasteEvent
+        copyPasteEventListener()
 
-         // copyPasteEvent
+         // timeTakenEventListener
+         timeTakenEventListener()
 
      },
      error: function (error) {
@@ -139,6 +141,32 @@ $(document).ready(function () {
     });
     
     };
+
+  function copyPasteEventListener(){
+    var formId
+
+    $('input').on('paste', function () { //Attach paste event handler for all inputs
+    formId = $(this).attr('id'); // get formId from current on paste form
+
+    copyPasteEvent = {
+                eventType: "copyAndPaste",
+                websiteUrl: document.URL,
+                sessionId: sessionId,
+                pasted: true,
+                formId: formId
+      }
+
+      postInfo(copyPasteEvent, "/copypaste")
+    });
+  }
+
+//   {
+//   "eventType": "copyAndPaste",
+//   "websiteUrl": "https://ravelin.com",
+//   "sessionId": "123123-123123-123123123",
+//   "pasted": true,
+//   "formId": "inputCardNumber"
+// }
 
 
 //     {
