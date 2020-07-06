@@ -13,13 +13,14 @@ import (
 )
 
 const (
-	invalidMethodReceived = "Received http method is not the expected one"
-	unableToReadBody      = "Unable to read body"
-	unableToUnmarshall    = "Unable to unMarshall request body"
-	errorUpdatingData     = "Error updating data in the repository"
-	invalidObject         = "The received object is invalid"
-	errorValidatingObject = "Error validating object"
-	errorSessionId        = "Error in session id generation"
+	invalidMethodReceived   = "Received http method is not the expected one"
+	unableToReadBody        = "Unable to read body"
+	unableToUnmarshall      = "Unable to unMarshall request body"
+	errorUpdatingData       = "Error updating data in the repository"
+	invalidObject           = "The received object is invalid"
+	errorValidatingObject   = "Error validating object"
+	errorSessionId          = "Error in session id generation"
+	errorReturningSessionId = "Error returning session id"
 
 	// this value corresponds to 30 minutes in seconds. It is for demo purposes, and is based in a quick google search: "average session duration"
 	sessionLength = 1800
@@ -253,21 +254,36 @@ func HandleSessionCreation(responseWriter http.ResponseWriter, request *http.Req
 		return
 	}
 
-	cookieObject := &http.Cookie{
-		Name:     "session",
-		Value:    sessionId,
-		MaxAge:   sessionLength,
-		HttpOnly: true,
+	// not being able to access cookies on client side to obtain a sessionId stored there, will have to return through response writer
+	sessionCreated := SessionCreatedEvent{
+		SessionId: updatedData.SessionId,
 	}
 
-	// not being able to access cookies, will have to return through response writer
+	sessionResponseBytes, err := json.Marshal(sessionCreated)
 
-	http.SetCookie(responseWriter, cookieObject)
+	if err != nil {
+		log.Println(errorSessionId, "with error", err)
+		http.Error(responseWriter, errorSessionId, http.StatusInternalServerError)
+		return
+	}
+
+	responseWriter.Header().Add("Access-Control-Allow-Origin", "*")
+	responseWriter.Header().Add("Access-Control-Allow-Credentials", "omit")
+	responseWriter.Header().Add("Access-Control-Allow-Methods", "Allow")
+	responseWriter.Header().Add("Access-Control-Allow-Methods", "OPTIONS, POST")
+	responseWriter.Header().Add("Content-Type", "application/json")
+
+	_, err = responseWriter.Write(sessionResponseBytes)
+
+	if err != nil {
+		log.Println(errorReturningSessionId, "with error", err)
+		http.Error(responseWriter, errorReturningSessionId, http.StatusInternalServerError)
+		return
+	}
 
 	fmt.Printf("\nSession Data after sessionId creation :\n %+#v \n", updatedData)
 
 	fmt.Printf("\nHashed websiteUrl: %s \n", hash_service.Generate(sessionReceived.WebsiteURL))
-
 }
 
 // Returns a 36-character string in the form XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX

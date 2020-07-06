@@ -32,3 +32,7 @@ type TimeTakenEvent struct {
 type SessionEvent struct {
 	WebsiteURL string `json:"websiteUrl"`
 }
+
+type SessionCreatedEvent struct {
+	SessionId string
+}
