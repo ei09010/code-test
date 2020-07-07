@@ -79,15 +79,32 @@ var sessionId = ""
 
 $(document).ready(function () {
 
-    $.ajax({
+
+// sessionId should go to cookie to avoid constant requests to server
+  
+// if cookie session Id expired:
+createSession()
+// else
+enableListeners()
+});
+
+function createSession(){
+  $.ajax({
       url: domainURl +'/session',
       type: 'POST',
       data: JSON.stringify({webSiteUrl: document.URL}),
      success: function (data) {
 
         sessionId = data.SessionId;
+        enableListeners()
+     },
+     error: function (error) {
+       alert("Error during session: " + JSON.stringify(error))
+     }
+    })
+}
 
-         // sessionId should go to cookie to avoid constant requests to server
+function enableListeners(){
 
          //windowResizeEventListener
          windowResizeEventListener()
@@ -97,13 +114,7 @@ $(document).ready(function () {
 
          // timeTakenEventListener
          timeTakenEventListener()
-
-     },
-     error: function (error) {
-       alert("Error during session: " + JSON.stringify(error))
-     }
-    })
-  });
+}
 
   function windowResizeEventListener(){
 
