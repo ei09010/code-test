@@ -27,13 +27,15 @@ func (scrEvent *ScreenResizeEvent) Validate() (bool, error) {
 
 func (timeEvent *TimeTakenEvent) Validate() (bool, error) {
 
-	isValid, err := sessionExists(timeEvent.SessionId, timeEvent.WebsiteUrl)
+	isSessionValid, err := sessionExists(timeEvent.SessionId, timeEvent.WebsiteUrl)
 
-	isValid = timeEvent.Time > 0
+	isParameterValid := timeEvent.Time > 0
 
 	if err != nil {
 		return false, err
 	}
+
+	isValid := isSessionValid && isParameterValid
 
 	if !isValid {
 		return false, nil

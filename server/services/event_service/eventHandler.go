@@ -12,14 +12,15 @@ import (
 )
 
 const (
-	invalidMethodReceived   = "Received http method is not the expected one"
-	unableToReadBody        = "Unable to read body"
-	unableToUnmarshall      = "Unable to unMarshall request body"
-	errorUpdatingData       = "Error updating data in the repository"
-	invalidObject           = "The received object is invalid"
-	errorValidatingObject   = "Error validating object"
-	errorSessionId          = "Error in session id generation"
-	errorReturningSessionId = "Error returning session id"
+	invalidMethodReceived      = "Received http method is not the expected one"
+	unableToReadBody           = "Unable to read body"
+	unableToUnmarshall         = "Unable to unMarshall request body"
+	errorUpdatingData          = "Error updating data in the repository"
+	invalidObject              = "The received object is invalid"
+	errorValidatingObject      = "Error validating object"
+	errorSessionId             = "Error in session id generation"
+	errorReturningSessionId    = "Error returning session id"
+	errorRetrievingObjectToMap = "Error retrieving object to map"
 
 	// this value corresponds to 30 minutes in seconds. It is for demo purposes, and is based in a quick google search: "average session duration"
 	sessionLength = 1800
@@ -68,7 +69,12 @@ func HandleScreenResizeEvents(responseWriter http.ResponseWriter, request *http.
 	}
 
 	// process payload content
-	dataToStore := screenResizeReceived.Map()
+	dataToStore, err := screenResizeReceived.Map()
+
+	if err != nil {
+		http.Error(responseWriter, errorRetrievingObjectToMap, http.StatusInternalServerError)
+		return
+	}
 
 	updatedData, err := repository.SessionsData.Update(dataToStore)
 
@@ -127,8 +133,13 @@ func HandleTimeTakenEvents(responseWriter http.ResponseWriter, request *http.Req
 		return
 	}
 
-	// process payload content
-	dataToStore := timeTakenReceived.Map()
+	// process and store payload content
+	dataToStore, err := timeTakenReceived.Map()
+
+	if err != nil {
+		http.Error(responseWriter, errorRetrievingObjectToMap, http.StatusInternalServerError)
+		return
+	}
 
 	updatedData, err := repository.SessionsData.Update(dataToStore)
 
@@ -180,13 +191,18 @@ func HandleCopyPasteEvents(responseWriter http.ResponseWriter, request *http.Req
 	}
 
 	if !isValid {
-		log.Println(invalidObject, "with error", err)
+		log.Println(invalidObject)
 		http.Error(responseWriter, invalidObject, http.StatusBadRequest)
 		return
 	}
 
-	// process payload content
-	dataToStore := copyPasteReceived.Map()
+	// process and store payload content
+	dataToStore, err := copyPasteReceived.Map()
+
+	if err != nil {
+		http.Error(responseWriter, errorRetrievingObjectToMap, http.StatusInternalServerError)
+		return
+	}
 
 	updatedData, err := repository.SessionsData.Update(dataToStore)
 
@@ -266,11 +282,11 @@ func HandleSessionCreation(responseWriter http.ResponseWriter, request *http.Req
 		return
 	}
 
-	responseWriter.Header().Add("Access-Control-Allow-Origin", "*")
-	responseWriter.Header().Add("Access-Control-Allow-Credentials", "omit")
-	responseWriter.Header().Add("Access-Control-Allow-Methods", "Allow")
-	responseWriter.Header().Add("Access-Control-Allow-Methods", "OPTIONS, POST")
-	responseWriter.Header().Add("Content-Type", "application/json")
+	// responseWriter.Header().Add("Access-Control-Allow-Origin", "*")
+	// responseWriter.Header().Add("Access-Control-Allow-Credentials", "omit")
+	// responseWriter.Header().Add("Access-Control-Allow-Methods", "Allow")
+	// responseWriter.Header().Add("Access-Control-Allow-Methods", "OPTIONS, POST")
+	// responseWriter.Header().Add("Content-Type", "application/json")
 
 	_, err = responseWriter.Write(sessionResponseBytes)
 

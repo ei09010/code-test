@@ -2,45 +2,69 @@ package event_service
 
 import (
 	"code-test/server/model"
+	"code-test/server/repository"
+	"log"
 )
 
 // this mapping functions isolate the datamodel object construction to a single file - if the data model changes, the mapping related changes will happen in the same place
 
-func (scrEvent *ScreenResizeEvent) Map() *model.Data {
+func (scrEvent *ScreenResizeEvent) Map() (*model.Data, error) {
 
-	dataToReturn := &model.Data{
-		WebsiteUrl: scrEvent.WebsiteUrl,
-		SessionId:  scrEvent.SessionId,
+	dataToReturn, err := repository.SessionsData.Get(scrEvent.SessionId, scrEvent.WebsiteUrl)
 
-		ResizeFrom: scrEvent.ResizeFrom,
-		ResizeTo:   scrEvent.ResizeTo,
+	if err != nil {
+		log.Println(errorRetrievingObjectToMap, "with error", err)
+		return nil, err
 	}
 
-	return dataToReturn
+	// Since only one re-size happens, I'm assuming that if already stored resize data is empty, we can override with valid (non zero-value) received resize data
+
+	dataStoredResizeFromInvalid := dataToReturn.ResizeFrom.Height == "" && dataToReturn.ResizeFrom.Width == ""
+
+	if dataStoredResizeFromInvalid {
+		dataToReturn.ResizeFrom = scrEvent.ResizeFrom
+	}
+
+	dataStoredResizeToInvalid := dataToReturn.ResizeTo.Height == "" && dataToReturn.ResizeTo.Width == ""
+
+	if dataStoredResizeToInvalid {
+		dataToReturn.ResizeTo = scrEvent.ResizeTo
+	}
+
+	return dataToReturn, nil
 }
 
-func (timeEvent *TimeTakenEvent) Map() *model.Data {
+func (timeEvent *TimeTakenEvent) Map() (*model.Data, error) {
 
-	dataToReturn := &model.Data{
-		WebsiteUrl: timeEvent.WebsiteUrl,
-		SessionId:  timeEvent.SessionId,
+	dataToReturn, err := repository.SessionsData.Get(timeEvent.SessionId, timeEvent.WebsiteUrl)
 
-		Time: timeEvent.Time,
+	if err != nil {
+		log.Println(errorRetrievingObjectToMap, "with error", err)
+		return nil, err
 	}
 
-	return dataToReturn
+	dataToReturn.Time = timeEvent.Time
+
+	return dataToReturn, nil
 }
 
-func (cpEvent *CopyPasteEvent) Map() *model.Data {
+func (cpEvent *CopyPasteEvent) Map() (*model.Data, error) {
 
-	dataToReturn := &model.Data{
-		WebsiteUrl: cpEvent.WebsiteUrl,
-		SessionId:  cpEvent.SessionId,
+	dataToReturn, err := repository.SessionsData.Get(cpEvent.SessionId, cpEvent.WebsiteUrl)
 
-		CopyAndPaste: map[string]bool{
-			cpEvent.FormId: cpEvent.Pasted,
-		},
+	if err != nil {
+		log.Println(errorRetrievingObjectToMap, "with error", err)
+		return nil, err
 	}
 
-	return dataToReturn
+	// store copy paste events
+	// Given that the paste operation will only change from false to true once, I'm only adding to the dictionary
+
+	if _, ok := dataToReturn.CopyAndPaste[""]; ok {
+		delete(dataToReturn.CopyAndPaste, "")
+	}
+
+	dataToReturn.CopyAndPaste[cpEvent.FormId] = cpEvent.Pasted
+
+	return dataToReturn, nil
 }

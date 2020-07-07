@@ -77,45 +77,9 @@ func (sDataStore *SessionDataStorage) Update(receivedSessionData *model.Data) (*
 	mapKey := buildKey(receivedSessionData.SessionId, receivedSessionData.WebsiteUrl)
 
 	// store screensize events
-	if dataStored, ok := sDataStore.sessionData[mapKey]; ok {
+	if _, ok := sDataStore.sessionData[mapKey]; ok {
 
-		// store time taken events
-
-		if receivedSessionData.Time > 0 {
-
-			dataStored.Time = receivedSessionData.Time
-		}
-
-		// store copy paste events
-		// Given that the paste operation will only change from false to true once, I'm only adding to the dictionary
-
-		for k, v := range receivedSessionData.CopyAndPaste {
-			if _, ok := dataStored.CopyAndPaste[k]; !ok {
-
-				// delete map default value create when initializing session
-				if _, ok := dataStored.CopyAndPaste[""]; ok {
-					delete(dataStored.CopyAndPaste, "")
-				}
-
-				dataStored.CopyAndPaste[k] = v
-			}
-		}
-
-		// Since only one re-size happens, I'm assuming that if already stored resize data is empty, we can override with valid (non zero-value) received resize data
-
-		receivedResizeFromValid := receivedSessionData.ResizeFrom.Height != "" && receivedSessionData.ResizeFrom.Width != ""
-		dataStoredResizeFromInvalid := dataStored.ResizeFrom.Height == "" && dataStored.ResizeFrom.Width == ""
-
-		if receivedResizeFromValid && dataStoredResizeFromInvalid {
-			dataStored.ResizeFrom = receivedSessionData.ResizeFrom
-		}
-
-		receivedResizeToValid := receivedSessionData.ResizeTo.Height != "" && receivedSessionData.ResizeTo.Width != ""
-		dataStoredResizeToInvalid := dataStored.ResizeTo.Height == "" && dataStored.ResizeTo.Width == ""
-
-		if receivedResizeToValid && dataStoredResizeToInvalid {
-			dataStored.ResizeTo = receivedSessionData.ResizeTo
-		}
+		sDataStore.sessionData[mapKey] = receivedSessionData
 
 	} else {
 
