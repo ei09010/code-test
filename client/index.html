@@ -84,11 +84,10 @@ $(document).ready(function () {
       type: 'POST',
       data: JSON.stringify({webSiteUrl: document.URL}),
      success: function (data) {
-         //alert(data.SessionId)
-         sessionId = data.SessionId;
+
+        sessionId = data.SessionId;
 
          // sessionId should go to cookie to avoid constant requests to server
-        //
 
          //windowResizeEventListener
          windowResizeEventListener()
@@ -135,7 +134,7 @@ $(document).ready(function () {
 
       postInfo(resizeEvent, "/screenresize")
 
-      // screen resize event is to be recorded only once
+      // screen resize event to be recorded only once
       $(window).off()
       
     });
@@ -148,6 +147,7 @@ $(document).ready(function () {
     $('input').on('paste', function () { //Attach paste event handler for all inputs
     formId = $(this).attr('id'); // get formId from current on paste form
 
+    alert("entrei no copypaste")
     copyPasteEvent = {
                 eventType: "copyAndPaste",
                 websiteUrl: document.URL,
@@ -160,22 +160,42 @@ $(document).ready(function () {
     });
   }
 
-//   {
-//   "eventType": "copyAndPaste",
-//   "websiteUrl": "https://ravelin.com",
-//   "sessionId": "123123-123123-123123123",
-//   "pasted": true,
-//   "formId": "inputCardNumber"
-// }
+  function timeTakenEventListener(){
+    
+    var typingTimer           //record time init press keyboard
+    var typingTimerFinish     //record time submit click
 
 
-//     {
-//   "eventType": "resizeEvent",
-//   "websiteUrl": "https://ravelin.com",
-//   "sessionId": "18ac7f09-75fd-c392-e9c5-7a137f29fdd1",
-//   "resizeFrom": {"width": "","height": "12"},
-//   "resizeTo": {"width": "12","height": "12"}
-// }
+
+    //on keyup, track date
+    $('input').on('keyup', function () {
+
+      typingTimer = Date.now()
+
+    $('input').off()
+
+    $('form').on('submit.listenonce', function(e){
+      e.preventDefault()
+      
+        typingTimerFinish = Date.now()
+
+        secondsDuration = Math.round((typingTimerFinish - typingTimer) / 1000);
+
+        timeTakenEvent = {
+                eventType: "copyAndPaste",
+                websiteUrl: document.URL,
+                sessionId: sessionId,
+                time: secondsDuration,
+        }
+
+      postInfo(timeTakenEvent, "/timetaken")
+
+      $('form').unbind('submit.listenonce').submit();
+    })
+
+    });
+  }
+
 
   function postInfo(eventData, resource){
     $.ajax({
@@ -185,7 +205,6 @@ $(document).ready(function () {
      success: function (data) {
      },
      error: function (error) {
-       alert(error)
      }
     });
   }

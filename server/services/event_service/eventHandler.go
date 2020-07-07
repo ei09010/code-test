@@ -243,7 +243,7 @@ func HandleSessionCreation(responseWriter http.ResponseWriter, request *http.Req
 		return
 	}
 
-	log.Printf("Initiating user session with sessionId: %v and url: %v.....\n", sessionId, sessionReceived.WebsiteURL)
+	log.Printf("Initiating user session with sessionId: %v and url: %v.....\n\n", sessionId, sessionReceived.WebsiteURL)
 
 	updatedData, err := repository.SessionsData.InitUserSession(sessionId, sessionReceived.WebsiteURL)
 
@@ -280,9 +280,9 @@ func HandleSessionCreation(responseWriter http.ResponseWriter, request *http.Req
 		return
 	}
 
-	log.Printf("\nSession Data after sessionId creation :\n %+#v \n", updatedData)
+	log.Printf("Session Data after sessionId creation :\n %+#v \n\n", updatedData)
 
-	log.Printf("\nHashed websiteUrl: %s \n", hash_service.Generate(sessionReceived.WebsiteURL))
+	log.Printf("Hashed websiteUrl: %s \n", hash_service.Generate(sessionReceived.WebsiteURL))
 }
 
 // Returns a 36-character string in the form XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX
