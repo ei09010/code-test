@@ -10,6 +10,7 @@
       <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap-theme.min.css">
       
       <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/js-cookie@2.2.1/src/js.cookie.min.js"></script>
 
       <style type="text/css">
 body {
@@ -72,50 +73,35 @@ body {
 
     </div> <!-- /container -->
 
-    <script>
+<script>
 
 var domainURl = "http://localhost:8080"
-var sessionId = ""
+var sessionId
 
 $(document).ready(function () {
 
+  // Since I'm storing session Id in a cookie, in a next iteration could be some validation so that I'm not constantly asking server for a new sessionId
+  createSession()
 
-// sessionId should go to cookie to avoid constant requests to server
-  
-// if cookie session Id expired:
-createSession()
-// else
-enableListeners()
 });
 
-function createSession(){
+  function createSession(){
   $.ajax({
       url: domainURl +'/session',
       type: 'POST',
       data: JSON.stringify({webSiteUrl: document.URL}),
      success: function (data) {
-
         sessionId = data.SessionId;
+
+        document.cookie = "session="+sessionId;
         enableListeners()
      },
      error: function (error) {
        alert("Error during session: " + JSON.stringify(error))
      }
     })
-}
-
-function enableListeners(){
-
-         //windowResizeEventListener
-         windowResizeEventListener()
-
-        // copyPasteEvent
-        copyPasteEventListener()
-
-         // timeTakenEventListener
-         timeTakenEventListener()
-}
-
+  };
+  
   function windowResizeEventListener(){
 
     var oldWidth =  $(window).width().toString();
@@ -123,12 +109,12 @@ function enableListeners(){
     var newWidth;
     var newHeight;
 
-    $(window).resize(function(){
+    $(window).one("resize", function(){
 
       newWidth = $(window).width().toString();
       newHeight = $(window).height().toString();
     
-      resizeEvent = {
+        resizeEvent = {
                 eventType: "resizeEvent",
                 websiteUrl: document.URL,
                 sessionId: sessionId,
@@ -144,21 +130,19 @@ function enableListeners(){
       }
 
       postInfo(resizeEvent, "/screenresize")
-
-      // screen resize event to be recorded only once
-      $(window).off()
       
     });
     
-    };
+  };
 
   function copyPasteEventListener(){
     var formId
 
     $('input').on('paste', function () { //Attach paste event handler for all inputs
+
+
     formId = $(this).attr('id'); // get formId from current on paste form
 
-    alert("entrei no copypaste")
     copyPasteEvent = {
                 eventType: "copyAndPaste",
                 websiteUrl: document.URL,
@@ -169,21 +153,21 @@ function enableListeners(){
 
       postInfo(copyPasteEvent, "/copypaste")
     });
-  }
+  };
 
+// in this listenmer, I remove every handler attached to 'input' type fields to allow the timer to count. Hence, after this event listener triggered ,
+// copy paste related events will no longer be listened
   function timeTakenEventListener(){
     
     var typingTimer           //record time init press keyboard
     var typingTimerFinish     //record time submit click
 
-
-
     //on keyup, track date
-    $('input').on('keyup', function () {
+    $('input').on('keyup.listenonce', function () {
 
       typingTimer = Date.now()
 
-    $('input').off()
+    $('input').off('keyup.listenonce')
 
     $('form').on('submit.listenonce', function(e){
       e.preventDefault()
@@ -208,6 +192,21 @@ function enableListeners(){
   }
 
 
+
+  //helper functions
+
+  function enableListeners(){
+
+         //windowResizeEventListener
+         windowResizeEventListener()
+
+        // copyPasteEvent
+        copyPasteEventListener()
+
+         // timeTakenEventListener
+         timeTakenEventListener()
+  } 
+
   function postInfo(eventData, resource){
     $.ajax({
       url: domainURl + resource,
@@ -220,9 +219,8 @@ function enableListeners(){
     });
   }
   
-   </script>
+  
+</script>
 
-
-
-  </body>
+</body>
 </html>

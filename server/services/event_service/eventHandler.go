@@ -282,11 +282,11 @@ func HandleSessionCreation(responseWriter http.ResponseWriter, request *http.Req
 		return
 	}
 
-	// responseWriter.Header().Add("Access-Control-Allow-Origin", "*")
-	// responseWriter.Header().Add("Access-Control-Allow-Credentials", "omit")
-	// responseWriter.Header().Add("Access-Control-Allow-Methods", "Allow")
-	// responseWriter.Header().Add("Access-Control-Allow-Methods", "OPTIONS, POST")
-	// responseWriter.Header().Add("Content-Type", "application/json")
+	responseWriter.Header().Add("Access-Control-Allow-Origin", "*")
+	responseWriter.Header().Add("Access-Control-Allow-Credentials", "omit")
+	responseWriter.Header().Add("Access-Control-Allow-Methods", "Allow")
+	responseWriter.Header().Add("Access-Control-Allow-Methods", "OPTIONS, POST")
+	responseWriter.Header().Add("Content-Type", "application/json")
 
 	_, err = responseWriter.Write(sessionResponseBytes)
 
