@@ -64,7 +64,6 @@ func (sDataStore *SessionDataStorage) Get(sessionId string, websiteUrl string) (
 
 }
 
-// here we store the Data object, that will always have some properties with the zero-value due to the fragmented nature of the handled events
 func (sDataStore *SessionDataStorage) Update(receivedSessionData *model.Data) (*model.Data, error) {
 
 	sDataStore.mu.Lock()
@@ -76,7 +75,6 @@ func (sDataStore *SessionDataStorage) Update(receivedSessionData *model.Data) (*
 
 	mapKey := buildKey(receivedSessionData.SessionId, receivedSessionData.WebsiteUrl)
 
-	// store screensize events
 	if _, ok := sDataStore.sessionData[mapKey]; ok {
 
 		sDataStore.sessionData[mapKey] = receivedSessionData
