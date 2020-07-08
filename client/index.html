@@ -78,6 +78,8 @@ body {
 
 <script>
 
+// setted domain because this index.html is specially tailored to fit this exercise and to communicate 
+//with the available server in port :8080
 var domainURl = "http://localhost:8080"
 var sessionId
 
@@ -158,8 +160,7 @@ $(document).ready(function () {
     });
   };
 
-// in this listenmer, I remove every handler attached to 'input' type fields to allow the timer to count. Hence, after this event listener triggered ,
-// copy paste related events will no longer be listened
+
   function timeTakenEventListener(){
     
     var typingTimer           //record time init press keyboard
@@ -198,16 +199,17 @@ $(document).ready(function () {
 
   function enableListeners(){
 
-         //windowResizeEventListener
+         //listen for window resize events
          windowResizeEventListener()
 
-        // copyPasteEvent
+        // listen for copy>paste events
         copyPasteEventListener()
 
-         // timeTakenEventListener
+         // listen for the time taken since first key down until submit
          timeTakenEventListener()
   } 
 
+  // post request to server
   function postInfo(eventData, resource){
     $.ajax({
       url: domainURl + resource,
