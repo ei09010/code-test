@@ -7,7 +7,7 @@ import (
 )
 
 // this mapping functions isolate the datamodel object construction to a single file - if the data model changes, the mapping related changes will happen in the same place
-
+// also, status validation related to the event in database to which I am mapping to
 func (scrEvent *ScreenResizeEvent) Map() (*model.Data, error) {
 
 	dataToReturn, err := repository.SessionsData.Get(scrEvent.SessionId, scrEvent.WebsiteUrl)
@@ -18,16 +18,15 @@ func (scrEvent *ScreenResizeEvent) Map() (*model.Data, error) {
 	}
 
 	// Since only one re-size happens, I'm assuming that if already stored resize data is empty, we can override with valid (non zero-value) received resize data
+	dataToReturnResizeFromInvalid := dataToReturn.ResizeFrom.Height == "" && dataToReturn.ResizeFrom.Width == ""
 
-	dataStoredResizeFromInvalid := dataToReturn.ResizeFrom.Height == "" && dataToReturn.ResizeFrom.Width == ""
-
-	if dataStoredResizeFromInvalid {
+	if dataToReturnResizeFromInvalid {
 		dataToReturn.ResizeFrom = scrEvent.ResizeFrom
 	}
 
-	dataStoredResizeToInvalid := dataToReturn.ResizeTo.Height == "" && dataToReturn.ResizeTo.Width == ""
+	dataToReturnResizeToInvalid := dataToReturn.ResizeTo.Height == "" && dataToReturn.ResizeTo.Width == ""
 
-	if dataStoredResizeToInvalid {
+	if dataToReturnResizeToInvalid {
 		dataToReturn.ResizeTo = scrEvent.ResizeTo
 	}
 
